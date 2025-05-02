@@ -158,13 +158,13 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
     <DetailContainer>
       <InfoSection>
         <ProfileHeader>
-        <Avatar src={doctor.profile_image} alt={doctor.name} />
+        <Avatar src={doctor.profile_image_url || undefined} alt={`${doctor.first_name} ${doctor.last_name}`} />
         <HeaderInfo>
-          <DoctorName>{doctor.name}</DoctorName>
-          <DoctorSpecialty>{doctor.specialty}</DoctorSpecialty>
+          <DoctorName>{`${doctor.first_name} ${doctor.last_name}`}</DoctorName>
+          <DoctorSpecialty>{doctor.specialties?.map(s => s.name).join(", ")}</DoctorSpecialty>
           <RatingContainer>
             <Star size={20} color={theme.colors.warning.main} />
-            <RatingValue>{doctor.rating.toFixed(1)}</RatingValue>
+            <RatingValue>{doctor.average_rating?.toFixed(1) || "Brak ocen"}</RatingValue>
             <span>z 5</span>
           </RatingContainer>
         </HeaderInfo>
@@ -177,10 +177,10 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
       
       <InfoCard>
         <CardTitle>Obszary specjalizacji</CardTitle>
-        <InfoText>Dr. {doctor.name.split(' ')[0]} specjalizuje się w leczeniu następujących schorzeń:</InfoText>
+        <InfoText>Dr. {doctor.first_name} specjalizuje się w leczeniu następujących schorzeń:</InfoText>
         <ExpertiseContainer>
-          {doctor.expertise_areas.map((area, index) => (
-            <ExpertiseTag key={index}>{area}</ExpertiseTag>
+          {doctor.expertise_areas?.map((area, index) => (
+            <ExpertiseTag key={index}>{area.name}</ExpertiseTag>
           ))}
         </ExpertiseContainer>
       </InfoCard>
@@ -196,7 +196,12 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
               </InfoIcon>
               <InfoContent>
                 <InfoLabel>Adres</InfoLabel>
-                <InfoText>{doctor.address}</InfoText>
+                <InfoText>
+                  {doctor.address ? 
+                    `${doctor.address.street}, ${doctor.address.city}` : 
+                    "Brak adresu"
+                  }
+                </InfoText>
               </InfoContent>
             </InfoItem>
             
@@ -226,7 +231,7 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
               </InfoIcon>
               <InfoContent>
                 <InfoLabel>Specjalizacja</InfoLabel>
-                <InfoText>{doctor.specialty}</InfoText>
+                <InfoText>{doctor.specialties?.map(s => s.name).join(", ")}</InfoText>
               </InfoContent>
             </InfoItem>
           </InfoList>
