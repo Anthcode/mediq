@@ -1,22 +1,18 @@
-export interface User {
-  id: string;
-  email: string;
-  first_name: string;
-  last_name: string;
-}
+import type { 
+  Doctor as BaseDoctor, 
+  Specialty, 
+  ExpertiseArea, 
+  Address, 
+  Rating 
+} from './database.types';
 
-export interface Doctor {
-  id: string;
-  name: string;
-  specialty: string;
-  experience: number;
-  rating: number;
-  address: string;
-  profile_image: string;
-  expertise_areas: string[];
-  education: string;
-  bio: string;
-  schedule: DaySchedule[];
+// Rozszerzony interfejs Doctor dla UI
+export interface Doctor extends BaseDoctor {
+  specialties?: Specialty[];
+  expertise_areas?: ExpertiseArea[];
+  address?: Address;
+  ratings?: Rating[];
+  average_rating?: number;
   relevance_score?: number;
 }
 
@@ -48,22 +44,7 @@ export interface AuthError {
   general?: string;
 }
 
-// Enums dla stałych wartości
-export enum Specialty {
-  KARDIOLOG = 'Kardiolog',
-  NEUROLOG = 'Neurolog',
-  DERMATOLOG = 'Dermatolog',
-  PEDIATRA = 'Pediatra',
-  INTERNISTA = 'Internista',
-  ORTOPEDA = 'Ortopeda',
-  OKULISTA = 'Okulista',
-  LARYNGOLOG = 'Laryngolog',
-  GINEKOLOG = 'Ginekolog',
-  UROLOG = 'Urolog',
-  PSYCHIATRA = 'Psychiatra',
-  ENDOKRYNOLOG = 'Endokrynolog'
-}
-
+// Enums dla UI
 export enum WeekDay {
   PONIEDZIALEK = 'Poniedziałek',
   WTOREK = 'Wtorek',
@@ -73,3 +54,6 @@ export enum WeekDay {
   SOBOTA = 'Sobota',
   NIEDZIELA = 'Niedziela'
 }
+
+// Re-eksportujemy typy z bazy danych, które są używane bezpośrednio
+export type { Address, Rating, Specialty };

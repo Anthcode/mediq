@@ -1,60 +1,69 @@
 # MedIQ Development Guidelines
 
-Jesteś asystentem AI specjalizującym się w React, TypeScript i nowoczesnych frameworkach frontend. Pomagasz mi rozwijać aplikację MedIQ, która łączy pacjentów z odpowiednimi lekarzami na podstawie analizy symptomów za pomocą sztucznej inteligencji.
+## Opis Aplikacji
 
-Aplikacja jest zbudowana przy użyciu:
+Aplikacja MedIQ łączy pacjentów z odpowiednimi lekarzami na podstawie analizy symptomów za pomocą sztucznej inteligencji. Została stworzona przy użyciu:
 
-- React z TypeScript i Vite jako bundler
-- Styled Components do stylowania
-- React Router do nawigacji
-- Supabase do autentykacji i obsługi bazy danych
-- OpenAI API do analizy zapytań zdrowotnych
+- **React z TypeScript i Vite** jako bundler
+- **Styled Components** do stylowania
+- **React Router** do nawigacji
+- **Supabase** do autentykacji i obsługi bazy danych
+- **OpenAI API** do analizy zapytań zdrowotnych
 
-Koncentruj się na:
+## Główne Obszary Rozwoju
 
-1. Implementacji pełnego CRUD dla lekarzy (obecnie mamy tylko odczyt)
-2. Tworzeniu testów jednostkowych/e2e dla kluczowych funkcjonalności
-3. Konfiguracji CI/CD za pomocą GitHub Actions
-4. Utrzymaniu czystego kodu zgodnego z TypeScript i najlepszymi praktykami React
-5. Optymalizacji integracji z AI i poprawie dokładności rekomendacji
+1. **Implementacja pełnego CRUD dla lekarzy**  
+   (aktualnie dostępny jest tylko odczyt)
 
-Podczas sugerowania rozwiązań uwzględnij:
+2. **Tworzenie testów jednostkowych/e2e**  
+   dla kluczowych funkcjonalności aplikacji.
 
-- Architekturę opartą na komponentach i kontekstach React
-- Podejście mobile-first i responsywność interfejsu
-- Bezpieczeństwo danych medycznych i prywatność użytkowników
-- Wydajność wyszukiwania i renderowania list lekarzy
+3. **Konfiguracja CI/CD**  
+   z użyciem GitHub Actions.
 
-Preferuj proaktywne sugerowanie ulepszeń i identyfikowanie potencjalnych problemów w istniejącym kodzie.
+4. **Utrzymanie czystego kodu**  
+   zgodnego z TypeScript i najlepszymi praktykami React.
 
-## FRONTEND
+5. **Optymalizacja integracji z AI**  
+   w celu poprawy dokładności rekomendacji.
 
-### Guidelines for REACT
+## Frontend
 
-#### REACT_CODING_STANDARDS
+### Wskazówki dla React
 
-- Use functional components with hooks instead of class components
-- Implement React.memo() for expensive components that render often with the same props
-- Utilize React.lazy() and Suspense for code-splitting and performance optimization
-- Use the useCallback hook for event handlers passed to child components to prevent unnecessary re-renders
-- Prefer useMemo for expensive calculations to avoid recomputation on every render
-- Implement useId() for generating unique IDs for accessibility attributes
-- Use the new use hook for data fetching in React 19+ projects
-- Leverage Server Components for {{data_fetching_heavy_components}} when using React with Next.js or similar frameworks
-- Consider using the new useOptimistic hook for optimistic UI updates in forms
-- Use useTransition for non-urgent state updates to keep the UI responsive
+- Używaj **komponentów funkcyjnych** z hookami zamiast komponentów klasowych.
+- Implementuj **React.memo()** dla kosztownych komponentów renderujących się często z tymi samymi propsami.
+- Wykorzystuj **React.lazy()** i **Suspense** do dzielenia kodu i optymalizacji wydajności.
+- Używaj hooka **useCallback** dla przekazywania handlerów zdarzeń do komponentów potomnych w celu zapobiegania niepotrzebnym renderom.
+- Preferuj **useMemo** do kosztownych obliczeń, aby uniknąć ponownego przeliczania przy każdym renderze.
+- Korzystaj z **useId()** dla generowania unikalnych identyfikatorów dla atrybutów związanych z dostępnością.
+- W projektach korzystających z React 19+ rozważ użycie nowego hooka **use** do pobierania danych.
+- W zastosowaniach z Next.js lub podobnymi frameworkami, rozważ użycie **Server Components** dla komponentów wymagających intensywnego pobierania danych.
+- Pomyśl o zastosowaniu **useOptimistic** dla optymistycznych aktualizacji UI w formularzach.
+- Używaj **useTransition** dla niepilnych aktualizacji stanu, aby UI pozostało responsywne.
 
-### Guidelines for STYLING
+### Wskazówki dla Stylowania (Styled Components)
 
-#### STYLED_COMPONENTS
+- Wdrażaj **ThemeProvider** w celu zapewnienia spójnego motywu w całej aplikacji.
+- Wykorzystuj **css helper** do dzielenia się stylami pomiędzy komponentami.
+- Używaj propsów dla warunkowego stylowania w szablonach string.
+- Stosuj **createGlobalStyle** do definiowania globalnych stylów.
+- Implementuj metodę **attrs** w celu przekazywania atrybutów HTML do elementów DOM.
+- Używaj propsa **as** do dynamicznego renderowania komponentów.
+- Rozszerzaj istniejące komponenty za pomocą składni **styled(Component)**.
+- Zastosuj **css prop** dla jednorazowych potrzeb stylizacyjnych.
+- Używaj znaku **&** do zagnieżdżania selektorów.
+- Wykorzystuj **keyframes helper** do definiowania animacji.
 
-- Use the ThemeProvider for consistent theming across components
-- Implement the css helper for sharing styles between components
-- Use props for conditional styling within template literals
-- Leverage the createGlobalStyle for global styling
-- Implement attrs method to pass HTML attributes to the underlying DOM elements
-- Use the as prop for dynamic component rendering
-- Leverage styled(Component) syntax for extending existing components
-- Implement the css prop for one-off styling needs
-- Use the & character for nesting selectors
-- Leverage the keyframes helper for animations
+## Backend i Integracja z AI
+
+- Używaj **Supabase** jako głównego serwisu backendowego dla autentykacji oraz interakcji z bazą danych.
+- Przestrzegaj wytycznych Supabase dotyczących bezpieczeństwa i wydajności.
+- Korzystaj z instancji klienta Supabase zdefiniowanej w `src/lib/supabase.ts`, pamiętając o używaniu typu `SupabaseClient` z tego pliku zamiast importowania go bezpośrednio z `@supabase/supabase-js`.
+- Wykorzystuj **Zod** do walidacji danych przekazywanych między frontendem a backendem.
+
+---
+
+> Proaktywne sugerowanie ulepszeń i identyfikowanie potencjalnych problemów jest kluczowe dla rozwoju aplikacji.
+>
+> Pamiętaj o zachowaniu podejścia mobile-first, responsywności interfejsu oraz bezpieczeństwie i prywatności danych medycznych.
