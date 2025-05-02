@@ -1,14 +1,14 @@
-# MedIQ
+# MedIQ 🚀
 
 ## Table of Contents
 
-- [Project Description](#project-description)
-- [Tech Stack](#tech-stack)
-- [Getting Started Locally](#getting-started-locally)
-- [Available Scripts](#available-scripts)
-- [Project Scope](#project-scope)
-- [Project Status](#project-status)
-- [License](#license)
+- [Project Description 📋](#project-description)
+- [Tech Stack 🛠️](#tech-stack)
+- [Getting Started Locally 🚀](#getting-started-locally)
+- [Available Scripts ⚙️](#available-scripts)
+- [Project Scope 🔍](#project-scope)
+- [Project Status 📈](#project-status)
+- [License 📜](#license)
 
 ## Project Description
 
@@ -16,11 +16,11 @@ MedIQ is an innovative web platform that leverages artificial intelligence to an
 
 Key features include:
 
-- AI-driven symptom analysis using the OpenAI GPT-4o-mini model.
-- Comprehensive CRUD functionalities for managing doctor profiles.
-- User authentication and profile management powered by Supabase.
-- Responsive, mobile-first design ensuring accessibility on all devices.
-- Automated testing and CI/CD pipeline to ensure code quality and deployment efficiency.
+- AI-driven symptom analysis using the OpenAI GPT-4o-mini model. 🤖
+- Comprehensive CRUD functionalities for managing doctor profiles. 🏥
+- User authentication and profile management powered by Supabase. 🔐
+- Responsive, mobile-first design ensuring accessibility on all devices. 📱
+- Automated testing and CI/CD pipeline to ensure code quality and deployment efficiency. ✅
 
 ## Tech Stack
 
