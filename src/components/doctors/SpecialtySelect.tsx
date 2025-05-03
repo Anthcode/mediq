@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
 import { supabase } from '../../lib/supabase';
-import { Specialty, ExpertiseArea } from '../../types';
+import { Specialty, ExpertiseArea } from '../../types/database.types';
 
 const SelectContainer = styled.div`
   margin-bottom: ${theme.spacing(2)};

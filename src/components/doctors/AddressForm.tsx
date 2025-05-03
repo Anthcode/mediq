@@ -1,120 +1,121 @@
 import React from 'react';
 import styled from 'styled-components';
 import { theme } from '../../styles/theme';
-import { Input } from '../common/Input';
+import { FormInput } from '../common/Input';
 import { Button } from '../common/Button';
+import { CreateAddressCommand } from '../../types/dto';
 
 const AddressContainer = styled.div`
+  padding: ${theme.spacing(2)};
+  margin-bottom: ${theme.spacing(2)};
   border: 1px solid ${theme.colors.neutral.light};
-  border-radius: ${theme.borderRadius.medium};
-  padding: ${theme.spacing(3)};
-  margin-bottom: ${theme.spacing(3)};
+  border-radius: ${theme.borderRadius.small};
 `;
 
-const AddressFields = styled.div`
+const AddressGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: ${theme.spacing(2)};
-  
+  margin-bottom: ${theme.spacing(2)};
+
   @media (max-width: ${theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
   }
 `;
 
-const ButtonContainer = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-top: ${theme.spacing(2)};
-`;
-
-interface Address {
-  street: string;
-  city: string;
-  state: string;
-  postal_code: string;
-  country: string;
-}
-
 interface AddressFormProps {
-  address: Address;
-  onChange: (address: Address) => void;
+  address: Partial<CreateAddressCommand>;
+  onChange: (address: CreateAddressCommand) => void;
   onRemove?: () => void;
   errors?: Record<string, string>;
+  disabled?: boolean;
 }
 
 const AddressForm: React.FC<AddressFormProps> = ({
   address,
   onChange,
   onRemove,
-  errors = {}
+  errors = {},
+  disabled = false
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    onChange({
-      ...address,
+    const newAddress: CreateAddressCommand = {
+      street: address.street || '',
+      city: address.city || '',
+      state: address.state || '',
+      postal_code: address.postal_code || '',
+      country: address.country || '',
+      doctor_id: address.doctor_id || '',
       [name]: value
-    });
+    };
+    onChange(newAddress);
   };
 
   return (
     <AddressContainer>
-      <AddressFields>
-        <Input
-          label="Ulica"
+      <AddressGrid>
+        <FormInput
+          id="street"
           name="street"
-          value={address.street}
+          label="Ulica"
+          value={address.street || ''}
           onChange={handleChange}
           error={errors.street}
           required
+          disabled={disabled}
         />
-        <Input
-          label="Miasto"
+        <FormInput
+          id="city"
           name="city"
-          value={address.city}
+          label="Miasto"
+          value={address.city || ''}
           onChange={handleChange}
           error={errors.city}
           required
+          disabled={disabled}
         />
-        <Input
-          label="Województwo"
+        <FormInput
+          id="state"
           name="state"
-          value={address.state}
+          label="Województwo"
+          value={address.state || ''}
           onChange={handleChange}
           error={errors.state}
-          required
+          disabled={disabled}
         />
-        <Input
-          label="Kod pocztowy"
+        <FormInput
+          id="postal_code"
           name="postal_code"
-          value={address.postal_code}
+          label="Kod pocztowy"
+          value={address.postal_code || ''}
           onChange={handleChange}
           error={errors.postal_code}
           required
+          disabled={disabled}
         />
-        <Input
-          label="Kraj"
+        <FormInput
+          id="country"
           name="country"
-          value={address.country}
+          label="Kraj"
+          value={address.country || ''}
           onChange={handleChange}
           error={errors.country}
-          required
+          disabled={disabled}
         />
-      </AddressFields>
-      
+      </AddressGrid>
       {onRemove && (
-        <ButtonContainer>
-          <Button
-            type="button"
-            variant="outlined"
-            color="error"
-            onClick={onRemove}
-          >
-            Usuń adres
-          </Button>
-        </ButtonContainer>
+        <Button
+          type="button"
+          variant="text"
+          onClick={onRemove}
+          disabled={disabled}
+        >
+          Usuń adres
+        </Button>
       )}
     </AddressContainer>
   );
 };
 
-export default AddressForm;
+export default React.memo(AddressForm);

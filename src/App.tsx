@@ -9,6 +9,7 @@ import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import DoctorDetailPage from './pages/DoctorDetailPage';
 import { LoginPage, SignupPage } from './pages/AuthPages';
+import { ProfilePage } from './pages/ProfilePage';
 import styled from 'styled-components';
 
 // Protected route component that redirects to login if user is not authenticated
@@ -50,6 +51,14 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <DoctorDetailPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/profile" 
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         } 
       />

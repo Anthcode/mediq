@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { authenticateToken, requireAdmin, AuthenticatedRequest } from '../middleware/authMiddleware';
 import { DoctorService } from '../services/doctorService';
 import { supabase } from '../lib/supabase';
-import { CreateDoctorCommand, UpdateDoctorCommand } from '../types';
+import { CreateDoctorCommand, UpdateDoctorCommand } from '../types/dto';
 
 const router = Router();
 const doctorService = new DoctorService(supabase);

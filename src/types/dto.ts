@@ -10,7 +10,7 @@ import {
     Specialty,
     ExpertiseArea,
     Address,
-} from './types/database.types';
+} from './database.types';
 
 /* 
   DTO i Command Model dla API:
