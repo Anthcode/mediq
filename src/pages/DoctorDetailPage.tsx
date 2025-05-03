@@ -8,7 +8,7 @@ import DoctorDetail from '../components/doctors/DoctorDetail';
 import { Button } from '../components/common/Button';
 import { LoadingContainer, LoadingSpinner } from '../components/common/LoadingSpinner';
 import { mockDoctors } from '../data/mockData';
-import { Doctor } from '../types';
+import { DoctorDTO } from '../types/dto';
 
 const DetailPageContainer = styled.div`
   padding: ${theme.spacing(4)} 0;
@@ -36,7 +36,7 @@ const ErrorMessage = styled.p`
 const DoctorDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [doctor, setDoctor] = useState<DoctorDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   

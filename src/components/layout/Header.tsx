@@ -1,12 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut } from 'lucide-react';
+import { User, LogOut, Settings } from 'lucide-react';
 import { Button } from '../common/Button';
 import { Container } from '../common/Container';
 import { theme } from '../../styles/theme';
 import { supabase } from '../../lib/supabase';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const HeaderContainer = styled.header`
   background-color: ${theme.colors.background.default};
@@ -68,6 +68,17 @@ const Header: React.FC = () => {
           <Nav>
             {user ? (
               <>
+                {user.role === 'administrator' && (
+                  <Button 
+                    as={Link} 
+                    to="/admin" 
+                    variant="outlined"
+                    size="small"
+                  >
+                    <Settings size={16} style={{ marginRight: '4px' }} />
+                    Panel admina
+                  </Button>
+                )}
                 <Button 
                   as={Link} 
                   to="/profile" 

@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '../lib/supabase';
-import { User } from '../types';
+import { User } from '../types/auth';
 import { LoadingSpinner, LoadingContainer, LoadingText } from '../components/common/LoadingSpinner';
-import { AuthError, User as SupabaseUser } from '@supabase/supabase-js';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isLoading: boolean;
@@ -13,16 +13,32 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export { AuthContext };
+
 interface AuthProviderProps {
   children: ReactNode;
 }
 
-const mapSupabaseUser = (supabaseUser: SupabaseUser): User => ({
-  id: supabaseUser.id,
-  email: supabaseUser.email || '',
-  first_name: supabaseUser.user_metadata.first_name,
-  last_name: supabaseUser.user_metadata.last_name
-});
+const mapSupabaseUser = async (supabaseUser: SupabaseUser): Promise<User> => {
+  // Fetch user profile including role
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', supabaseUser.id)
+    .single();
+
+  if (error) {
+    throw new Error('Failed to fetch user profile');
+  }
+
+  return {
+    id: supabaseUser.id,
+    email: supabaseUser.email || '',
+    first_name: supabaseUser.user_metadata.first_name,
+    last_name: supabaseUser.user_metadata.last_name,
+    role: profile.role
+  };
+};
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,12 +53,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { data: { session } } = await supabase.auth.getSession();
         
         if (session?.user) {
-          setUser(mapSupabaseUser(session.user));
+          const mappedUser = await mapSupabaseUser(session.user);
+          setUser(mappedUser);
         }
         
         setError(null);
       } catch (error) {
-        const authError = error as AuthError;
+        const authError = error as Error;
         console.error('Błąd inicjalizacji auth:', authError);
         setError(authError.message);
       } finally {
@@ -60,7 +77,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user) {
-            setUser(mapSupabaseUser(session.user));
+            const mappedUser = await mapSupabaseUser(session.user);
+            setUser(mappedUser);
             setError(null);
           }
         } else if (event === 'SIGNED_OUT') {
@@ -102,12 +120,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 };

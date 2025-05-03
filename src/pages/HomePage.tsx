@@ -6,10 +6,10 @@ import SearchBar from '../components/search/SearchBar';
 import DoctorsList from '../components/doctors/DoctorsList';
 import SearchAnalysisPanel from '../components/search/SearchAnalysisPanel';
 import { mockDoctors } from '../data/mockData';
-import { SearchResult } from '../types';
+import { SearchResult } from '../types/search';
 import { LoadingSpinner, LoadingContainer } from '../components/common/LoadingSpinner';
 import { analyzeHealthQuery } from '../lib/openai';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 

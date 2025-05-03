@@ -7,7 +7,7 @@ import { Container } from '../components/common/Container';
 import { Button } from '../components/common/Button';
 import { Input, Label, FormGroup, InputError } from '../components/common/Input';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -181,7 +181,8 @@ export const LoginPage: React.FC = () => {
           id: data.user.id,
           email: data.user.email || '',
           first_name: data.user.user_metadata.first_name,
-          last_name: data.user.user_metadata.last_name
+          last_name: data.user.user_metadata.last_name,
+          role: data.user.user_metadata.role
         });
         navigate('/');
       }
@@ -362,7 +363,8 @@ export const SignupPage: React.FC = () => {
           id: data.user.id,
           email: data.user.email || '',
           first_name: formData.firstName!,
-          last_name: formData.lastName!
+          last_name: formData.lastName!,
+          role: 'user' // Default role, can be changed later
         });
         navigate('/');
       }
