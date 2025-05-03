@@ -1,3 +1,4 @@
+// Eksport typów bazodanowych
 export type { 
     Doctor,
     Address,
@@ -13,3 +14,21 @@ export type {
     AddressInsert,
     AddressUpdate
 } from './database.types';
+
+// Eksport typów DTO i Command Models
+export type {
+    DoctorDTO,
+    CreateDoctorCommand,
+    UpdateDoctorCommand,
+    CreateAddressCommand,
+    DoctorRatingDTO,
+    CreateRatingCommand,
+    SearchHistoryDTO,
+    CreateSearchHistoryCommand,
+    AIAnalysisDTO,
+    UserProfileDTO,
+    UpdateUserProfileCommand,
+    LoginDTO,
+    AuthResponseDTO,
+    RegisterDTO
+} from './dto';

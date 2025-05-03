@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js';
-import { CreateDoctorCommand, DoctorDTO, UpdateDoctorCommand } from '../types';
+import { CreateDoctorCommand, DoctorDTO, UpdateDoctorCommand } from '../types/dto';
 
 export class DoctorService {
   constructor(private supabase: SupabaseClient) {}

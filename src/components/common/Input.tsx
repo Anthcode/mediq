@@ -1,3 +1,4 @@
+import React from 'react';
 import styled, { css } from 'styled-components';
 import { theme } from '../../styles/theme';
 
@@ -6,7 +7,7 @@ interface InputProps {
   $fullWidth?: boolean;
 }
 
-export const Input = styled.input<InputProps>`
+const baseInputStyles = css<InputProps>`
   padding: ${theme.spacing(1.5)} ${theme.spacing(2)};
   font-size: 1rem;
   border: 1px solid ${props => props.$error ? theme.colors.error.main : theme.colors.neutral.light};
@@ -41,6 +42,45 @@ export const Input = styled.input<InputProps>`
     opacity: 0.7;
   }
 `;
+
+export const Input = styled.input<InputProps>`${baseInputStyles}`;
+
+export const TextArea = styled.textarea<InputProps>`
+  ${baseInputStyles}
+  min-height: 100px;
+  resize: vertical;
+`;
+
+interface FormInputProps extends React.InputHTMLAttributes<HTMLInputElement | HTMLTextAreaElement> {
+  label?: string;
+  error?: string;
+  $fullWidth?: boolean;
+  as?: 'input' | 'textarea';
+}
+
+export const FormInput: React.FC<FormInputProps> = ({ 
+  label, 
+  error, 
+  id,
+  $fullWidth,
+  as = 'input',
+  ...props 
+}) => {
+  const InputComponent: React.ElementType = as === 'textarea' ? TextArea : Input;
+  
+  return (
+    <FormGroup>
+      {label && <Label htmlFor={id}>{label}</Label>}
+      <InputComponent 
+        id={id} 
+        $error={!!error} 
+        $fullWidth={$fullWidth} 
+        {...props}
+      />
+      {error && <InputError>{error}</InputError>} 
+    </FormGroup>
+  );
+};
 
 export const Label = styled.label`
   display: block;

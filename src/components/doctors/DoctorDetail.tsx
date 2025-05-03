@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { MapPin, Award, Briefcase, GraduationCap, Star } from 'lucide-react';
 import { theme } from '../../styles/theme';
 import { Button } from '../common/Button';
-import type { DoctorDTO } from '../../types';
+import type { DoctorDTO } from '../../types/dto';
 import type { Specialty, ExpertiseArea } from '../../types/database.types';
 
 const DetailContainer = styled.div`
