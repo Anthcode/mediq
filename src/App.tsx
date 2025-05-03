@@ -3,13 +3,18 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { theme } from './styles/theme';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { useAuth } from './hooks/useAuth';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import HomePage from './pages/HomePage';
 import DoctorDetailPage from './pages/DoctorDetailPage';
 import { LoginPage, SignupPage } from './pages/AuthPages';
 import { ProfilePage } from './pages/ProfilePage';
+import AdminDashboardPage from './pages/admin/DashboardPage';
+import DoctorsPage from './pages/admin/DoctorsPage';
+import EditDoctorPage from './pages/admin/EditDoctorPage';
+import { AdminRoute } from './components/common/AdminRoute';
 import styled from 'styled-components';
 
 // Protected route component that redirects to login if user is not authenticated
@@ -78,7 +83,40 @@ const AppRoutes: React.FC = () => {
           </AuthRoute>
         } 
       />
-      {/* Add more routes as needed */}
+      
+      {/* Admin routes */}
+      <Route 
+        path="/admin" 
+        element={
+          <AdminRoute>
+            <AdminDashboardPage />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/doctors" 
+        element={
+          <AdminRoute>
+            <DoctorsPage />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/doctors/new" 
+        element={
+          <AdminRoute>
+            <EditDoctorPage />
+          </AdminRoute>
+        } 
+      />
+      <Route 
+        path="/admin/doctors/:id/edit" 
+        element={
+          <AdminRoute>
+            <EditDoctorPage />
+          </AdminRoute>
+        } 
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

@@ -6,6 +6,7 @@ interface ButtonProps {
   size?: 'small' | 'medium' | 'large';
   $fullWidth?: boolean;
   disabled?: boolean;
+  $danger?: boolean;
 }
 
 export const Button = styled.button<ButtonProps>`
@@ -51,6 +52,8 @@ export const Button = styled.button<ButtonProps>`
   }}
   
   ${props => {
+    const color = props.$danger ? theme.colors.error : theme.colors.primary;
+
     switch (props.variant) {
       case 'secondary':
         return css`
@@ -68,43 +71,45 @@ export const Button = styled.button<ButtonProps>`
       case 'outlined':
         return css`
           background-color: transparent;
-          color: ${theme.colors.primary.main};
-          border: 1px solid ${theme.colors.primary.main};
+          color: ${color.main};
+          border: 1px solid ${color.main};
           
           &:hover {
-            background-color: rgba(30, 136, 229, 0.08);
+            background-color: ${color.light};
           }
           
           &:active {
-            background-color: rgba(30, 136, 229, 0.16);
+            background-color: ${color.dark};
+            color: ${color.contrastText};
           }
         `;
       case 'text':
         return css`
           background-color: transparent;
-          color: ${theme.colors.primary.main};
+          color: ${color.main};
           
           &:hover {
-            background-color: rgba(30, 136, 229, 0.08);
+            background-color: ${color.light};
           }
           
           &:active {
-            background-color: rgba(30, 136, 229, 0.16);
+            background-color: ${color.dark};
+            color: ${color.contrastText};
           }
         `;
       default: // primary
         return css`
-          background-color: ${theme.colors.primary.main};
-          color: ${theme.colors.primary.contrastText};
+          background-color: ${color.main};
+          color: ${color.contrastText};
           box-shadow: ${theme.shadows.small};
           
           &:hover {
-            background-color: ${theme.colors.primary.dark};
+            background-color: ${color.dark};
             box-shadow: ${theme.shadows.medium};
           }
           
           &:active {
-            background-color: ${theme.colors.primary.dark};
+            background-color: ${color.dark};
           }
         `;
     }

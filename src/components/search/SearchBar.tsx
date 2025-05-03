@@ -4,7 +4,7 @@ import { Search, Lock } from 'lucide-react';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import { theme } from '../../styles/theme';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 const Container = styled.div`
   width: 100%;

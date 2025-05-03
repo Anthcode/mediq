@@ -5,7 +5,7 @@ import { Container } from '../components/common/Container';
 import { Card } from '../components/common/Card';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { ProfileForm } from '../components/profile/ProfileForm';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { UserService } from '../services/userService';
 import { supabase } from '../lib/supabase';
 import { UserProfileDTO } from '../types/dto';

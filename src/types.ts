@@ -1,7 +1,7 @@
 import {
-
+    Doctor,
     DoctorInsert,
-
+    DoctorUpdate,
     AddressInsert,
     Rating,
     RatingInsert,
@@ -10,7 +10,7 @@ import {
     Specialty,
     ExpertiseArea,
     Address,
-} from './database.types';
+} from './types/database.types';
 
 /* 
   DTO i Command Model dla API:
@@ -30,20 +30,10 @@ import {
 /* 1. Doctor DTO and Command Models */
 
 // DTO reprezentujący lekarza z rozszerzonymi relacjami
-export interface DoctorDTO {
-    id: string;
-    first_name: string;
-    last_name: string;
-    active: boolean;
-    experience: number;
-    education: string | null;
-    bio: string | null;
-    profile_image_url: string | null;
+export interface DoctorDTO extends Doctor {
     specialties: Specialty[];
     expertise_areas: ExpertiseArea[];
     addresses: Address[];
-    ratings: Rating[];
-    relevance_score?: number;
 }
 
 // Command model dla tworzenia lekarza
@@ -56,12 +46,14 @@ export interface CreateDoctorCommand extends Omit<DoctorInsert, 'id' | 'created_
 }
 
 // Command model dla aktualizacji lekarza – wszystkie pola opcjonalne
-export type UpdateDoctorCommand = Partial<CreateDoctorCommand>;
+export interface UpdateDoctorCommand extends Partial<Omit<DoctorUpdate, 'id'>> {
+    specialties?: string[];
+    expertise_areas?: string[];
+    addresses?: Partial<CreateAddressCommand>[];
+}
 
 // Command model dla danych adresowych przy tworzeniu lekarza
-export interface CreateAddressCommand extends Omit<AddressInsert, 'id'> {
-    is_primary?: boolean;
-}
+export type CreateAddressCommand = Omit<AddressInsert, 'id' | 'created_at' | 'updated_at'>;
 
 /* 2. Rating DTO and Command Model */
 

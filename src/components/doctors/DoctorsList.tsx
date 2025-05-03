@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import DoctorCard from './DoctorCard';
-import { Doctor } from '../../types';
+import { DoctorDTO } from '../../types/dto';
 import { theme } from '../../styles/theme';
 
 const ListContainer = styled.div`
@@ -43,16 +43,24 @@ const EmptyStateText = styled.p`
 `;
 
 interface DoctorsListProps {
-  doctors: Doctor[];
+  doctors: DoctorDTO[];
+  isAdmin?: boolean;
+  onDeleteDoctor?: (id: string) => void;
 }
 
-const DoctorsList: React.FC<DoctorsListProps> = ({ doctors }) => {
+const DoctorsList: React.FC<DoctorsListProps> = ({ 
+  doctors, 
+  isAdmin = false,
+  onDeleteDoctor
+}) => {
   if (!doctors.length) {
     return (
       <EmptyState>
         <EmptyStateTitle>Nie znaleziono lekarzy</EmptyStateTitle>
         <EmptyStateText>
-          Nie znaleźliśmy żadnych lekarzy spełniających podane kryteria. Spróbuj zmienić kryteria wyszukiwania lub opisać problem innymi słowami.
+          {isAdmin 
+            ? 'Nie znaleziono żadnych lekarzy w bazie. Dodaj nowego lekarza używając przycisku powyżej.'
+            : 'Nie znaleźliśmy żadnych lekarzy spełniających podane kryteria. Spróbuj zmienić kryteria wyszukiwania lub opisać problem innymi słowami.'}
         </EmptyStateText>
       </EmptyState>
     );
@@ -62,7 +70,12 @@ const DoctorsList: React.FC<DoctorsListProps> = ({ doctors }) => {
     <ListContainer>
       <Grid>
         {doctors.map(doctor => (
-          <DoctorCard key={doctor.id} doctor={doctor} />
+          <DoctorCard 
+            key={doctor.id} 
+            doctor={doctor}
+            isAdmin={isAdmin}
+            onDelete={onDeleteDoctor}
+          />
         ))}
       </Grid>
     </ListContainer>
