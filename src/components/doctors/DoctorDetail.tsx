@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import { MapPin, Award, Briefcase, GraduationCap, Star } from 'lucide-react';
 import { theme } from '../../styles/theme';
 import { Button } from '../common/Button';
-import { Doctor } from '../../types';
+import type { DoctorDTO } from '../../types';
+import type { Specialty, ExpertiseArea } from '../../types/database.types';
 
 const DetailContainer = styled.div`
   display: flex;
@@ -150,40 +151,42 @@ const ButtonGroup = styled.div`
 `;
 
 interface DoctorDetailProps {
-  doctor: Doctor;
+  doctor: DoctorDTO;
 }
 
 const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
+  const primaryAddress = doctor.addresses?.[0];
+  
   return (
     <DetailContainer>
       <InfoSection>
         <ProfileHeader>
-        <Avatar src={doctor.profile_image_url || undefined} alt={`${doctor.first_name} ${doctor.last_name}`} />
-        <HeaderInfo>
-          <DoctorName>{`${doctor.first_name} ${doctor.last_name}`}</DoctorName>
-          <DoctorSpecialty>{doctor.specialties?.map(s => s.name).join(", ")}</DoctorSpecialty>
-          <RatingContainer>
-            <Star size={20} color={theme.colors.warning.main} />
-            <RatingValue>{doctor.average_rating?.toFixed(1) || "Brak ocen"}</RatingValue>
-            <span>z 5</span>
-          </RatingContainer>
-        </HeaderInfo>
-      </ProfileHeader>
+          <Avatar src={doctor.profile_image_url || undefined} alt={`${doctor.first_name} ${doctor.last_name}`} />
+          <HeaderInfo>
+            <DoctorName>{`${doctor.first_name} ${doctor.last_name}`}</DoctorName>
+            <DoctorSpecialty>{doctor.specialties?.map((s: Specialty) => s.name).join(", ")}</DoctorSpecialty>
+            <RatingContainer>
+              <Star size={20} color={theme.colors.warning.main} />
+              <RatingValue>Brak ocen</RatingValue>
+              <span>z 5</span>
+            </RatingContainer>
+          </HeaderInfo>
+        </ProfileHeader>
       
-      <InfoCard>
-        <CardTitle>O lekarzu</CardTitle>
-        <InfoText>{doctor.bio}</InfoText>
-      </InfoCard>
+        <InfoCard>
+          <CardTitle>O lekarzu</CardTitle>
+          <InfoText>{doctor.bio}</InfoText>
+        </InfoCard>
       
-      <InfoCard>
-        <CardTitle>Obszary specjalizacji</CardTitle>
-        <InfoText>Dr. {doctor.first_name} specjalizuje się w leczeniu następujących schorzeń:</InfoText>
-        <ExpertiseContainer>
-          {doctor.expertise_areas?.map((area, index) => (
-            <ExpertiseTag key={index}>{area.name}</ExpertiseTag>
-          ))}
-        </ExpertiseContainer>
-      </InfoCard>
+        <InfoCard>
+          <CardTitle>Obszary specjalizacji</CardTitle>
+          <InfoText>Dr. {doctor.first_name} specjalizuje się w leczeniu następujących schorzeń:</InfoText>
+          <ExpertiseContainer>
+            {doctor.expertise_areas?.map((area: ExpertiseArea, index: number) => (
+              <ExpertiseTag key={index}>{area.name}</ExpertiseTag>
+            ))}
+          </ExpertiseContainer>
+        </InfoCard>
       </InfoSection>
       
       <SideSection>
@@ -197,8 +200,8 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
               <InfoContent>
                 <InfoLabel>Adres</InfoLabel>
                 <InfoText>
-                  {doctor.address ? 
-                    `${doctor.address.street}, ${doctor.address.city}` : 
+                  {primaryAddress ? 
+                    `${primaryAddress.street}, ${primaryAddress.city}` : 
                     "Brak adresu"
                   }
                 </InfoText>
@@ -231,7 +234,7 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
               </InfoIcon>
               <InfoContent>
                 <InfoLabel>Specjalizacja</InfoLabel>
-                <InfoText>{doctor.specialties?.map(s => s.name).join(", ")}</InfoText>
+                <InfoText>{doctor.specialties?.map((s: Specialty) => s.name).join(", ")}</InfoText>
               </InfoContent>
             </InfoItem>
           </InfoList>
