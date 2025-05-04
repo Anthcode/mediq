@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { theme } from './styles/theme';
@@ -20,13 +20,18 @@ import styled from 'styled-components';
 // Protected route component that redirects to login if user is not authenticated
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
   
   if (isLoading) {
     return null; // Or show a loading spinner
   }
   
   if (!user) {
-    return <Navigate to="/login" replace />;
+    // Nie przekierowuj na /login jeśli jesteśmy w trakcie wylogowywania
+    if (location.pathname === '/') {
+      return <>{children}</>;
+    }
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
   
   return <>{children}</>;
