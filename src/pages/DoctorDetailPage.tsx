@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ArrowLeft } from 'lucide-react';
@@ -7,8 +7,9 @@ import { theme } from '../styles/theme';
 import DoctorDetail from '../components/doctors/DoctorDetail';
 import { Button } from '../components/common/Button';
 import { LoadingContainer, LoadingSpinner } from '../components/common/LoadingSpinner';
-import { mockDoctors } from '../data/mockData';
 import { DoctorDTO } from '../types/dto';
+import { DoctorService } from '../services/doctorService';
+import { supabase } from '../lib/supabase';
 
 const DetailPageContainer = styled.div`
   padding: ${theme.spacing(4)} 0;
@@ -40,20 +41,16 @@ const DoctorDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   
+  // Przenosimy utworzenie instancji serwisu poza useEffect
+  const doctorService = useMemo(() => new DoctorService(supabase), []);
+  
   useEffect(() => {
     const fetchDoctor = async () => {
+      if (!id) return;
+      
       try {
-        // Symulacja opóźnienia API
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // W rzeczywistej implementacji byłoby to zapytanie do Supabase
-        const foundDoctor = mockDoctors.find(d => d.id === id);
-        
-        if (foundDoctor) {
-          setDoctor(foundDoctor);
-        } else {
-          setError(true);
-        }
+        const doctorData = await doctorService.getDoctorById(id);
+        setDoctor(doctorData);
       } catch (error) {
         console.error('Błąd podczas pobierania danych lekarza:', error);
         setError(true);
@@ -63,7 +60,7 @@ const DoctorDetailPage: React.FC = () => {
     };
     
     fetchDoctor();
-  }, [id]);
+  }, [id, doctorService]); // dodajemy doctorService jako zależność
   
   if (loading) {
     return (

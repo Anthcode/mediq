@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Container } from '../components/common/Container';
 import { theme } from '../styles/theme';
 import SearchBar from '../components/search/SearchBar';
 import DoctorsList from '../components/doctors/DoctorsList';
 import SearchAnalysisPanel from '../components/search/SearchAnalysisPanel';
-import { mockDoctors } from '../data/mockData';
 import { SearchResult } from '../types/search';
 import { LoadingSpinner, LoadingContainer } from '../components/common/LoadingSpinner';
 import { analyzeHealthQuery } from '../lib/openai';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
+import { DoctorService } from '../services/doctorService';
+import { supabase } from '../lib/supabase';
+import { DoctorDTO } from '../types/dto';
 
 const fadeIn = keyframes`
   from {
@@ -106,7 +108,25 @@ const HomePage: React.FC = () => {
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [doctors, setDoctors] = useState<DoctorDTO[]>([]);
   
+  // Przenosimy utworzenie instancji serwisu poza useEffect
+  const doctorService = useMemo(() => new DoctorService(supabase), []);
+  
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const allDoctors = await doctorService.getDoctors();
+        setDoctors(allDoctors);
+      } catch (error) {
+        console.error('Błąd podczas pobierania listy lekarzy:', error);
+        setError('Nie udało się pobrać listy lekarzy. Spróbuj ponownie później.');
+      }
+    };
+
+    fetchDoctors();
+  }, [doctorService]); // dodajemy doctorService jako zależność
+
   const handleSearch = async (query: string) => {
     if (!user) {
       navigate('/login');
@@ -119,7 +139,7 @@ const HomePage: React.FC = () => {
     try {
       const analysis = await analyzeHealthQuery(query);
       
-      const matchedDoctors = mockDoctors
+      const matchedDoctors = doctors
         .map(doctor => ({
           ...doctor,
           relevance_score: analysis.relevance_scores[doctor.id] || 0

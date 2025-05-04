@@ -177,12 +177,22 @@ export const LoginPage: React.FC = () => {
       }
       
       if (data.user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .single();
+
+        if (profileError) {
+          throw new Error('Nie udało się pobrać profilu użytkownika');
+        }
+
         setUser({
           id: data.user.id,
           email: data.user.email || '',
           first_name: data.user.user_metadata.first_name,
           last_name: data.user.user_metadata.last_name,
-          role: data.user.user_metadata.role
+          role: profile.role
         });
         navigate('/');
       }
@@ -359,12 +369,28 @@ export const SignupPage: React.FC = () => {
       }
       
       if (data.user) {
+        // Utworzenie rekordu w tabeli profiles
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert([
+            {
+              id: data.user.id,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              role: 'user' // Domyślna rola dla nowych użytkowników
+            }
+          ]);
+
+        if (profileError) {
+          throw new Error('Nie udało się utworzyć profilu użytkownika');
+        }
+
         setUser({
           id: data.user.id,
           email: data.user.email || '',
           first_name: formData.firstName!,
           last_name: formData.lastName!,
-          role: 'user' // Default role, can be changed later
+          role: 'user'
         });
         navigate('/');
       }

@@ -52,9 +52,19 @@ const Header: React.FC = () => {
   const { user, setUser } = useAuth();
   
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    navigate('/login');
+    try {
+      // Najpierw wyczyść stan użytkownika
+      setUser(null);
+      
+      // Następnie wyloguj z Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Na końcu przekieruj na stronę główną
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('Błąd podczas wylogowywania:', error);
+    }
   };
   
   return (
