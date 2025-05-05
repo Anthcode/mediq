@@ -129,4 +129,64 @@ export class DoctorService {
       throw new Error(`Failed to add rating: ${error.message}`);
     }
   }
+
+  async getDoctorsBySpecialties(specialtyIds: string[]): Promise<DoctorDTO[]> {
+    if (!specialtyIds.length) {
+      return [];
+    }
+
+    const { data, error } = await this.supabase
+      .from('doctors')
+      .select(`
+        *,
+        specialties!doctors_specialties (
+          id,
+          name
+        ),
+        expertise_areas!doctors_expertise_areas (
+          id,
+          name
+        ),
+        addresses (
+          id,
+          street,
+          city,
+          state,
+          postal_code,
+          country
+        ),
+        ratings (
+          id,
+          rating,
+          comment,
+          created_at
+        )
+      `)
+      .eq('active', true)
+      .in('specialties.id', specialtyIds);
+
+    if (error) {
+      throw new Error(`Błąd podczas pobierania lekarzy według specjalizacji: ${error.message}`);
+    }
+
+    return data as DoctorDTO[];
+  }
+
+  async getDoctorsBySpecialtyNames(specialtyNames: string[]): Promise<DoctorDTO[]> {
+    const { data: specialties, error: specialtiesError } = await this.supabase
+      .from('specialties')
+      .select('id, name')
+      .in('name', specialtyNames);
+      
+    if (specialtiesError) {
+      throw new Error(`Błąd podczas pobierania specjalizacji: ${specialtiesError.message}`);
+    }
+
+    if (!specialties || specialties.length === 0) {
+      return [];
+    }
+    
+    const specialtyIds = specialties.map(s => s.id);
+    return this.getDoctorsBySpecialties(specialtyIds);
+  }
 }

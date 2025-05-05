@@ -44,6 +44,13 @@ export interface DoctorDTO {
     addresses: Address[];
     ratings: Rating[];
     relevance_score?: number;
+    best_matching_specialty?: {
+        id: string;
+        name: string;
+        matchPercentage: number;
+        description?: string;
+        reasoning?: string;
+    } | null;
 }
 
 // Command model dla tworzenia lekarza
@@ -83,13 +90,14 @@ export type CreateSearchHistoryCommand = Omit<SearchHistoryInsert, 'id' | 'creat
 
 // DTO zawierające wynik analizy zapytań zdrowotnych z użyciem OpenAI API
 export interface AIAnalysisDTO {
-    identified_symptoms: string[];
-    suggested_specialties: string[];
-    // Lista lekarzy wraz z procentowym dopasowaniem
-    doctors_match: {
-        doctor_id: string;
-        match_percentage: number;
-    }[];
+    query: string;
+    symptoms: string[];
+    suggested_specialties: Array<{
+        id: string;
+        name: string;
+        matchPercentage: number;
+        reasoning: string;
+    }>;
     analysis_id: string;
 }
 

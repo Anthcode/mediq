@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Container } from '../components/common/Container';
 import { theme } from '../styles/theme';
 import SearchBar from '../components/search/SearchBar';
 import DoctorsList from '../components/doctors/DoctorsList';
 import SearchAnalysisPanel from '../components/search/SearchAnalysisPanel';
-import { SearchResult } from '../types/search';
+import { SearchResult, SearchAnalysis } from '../types/search';
 import { LoadingSpinner, LoadingContainer } from '../components/common/LoadingSpinner';
-import { analyzeHealthQuery } from '../lib/openai';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { DoctorService } from '../services/doctorService';
 import { supabase } from '../lib/supabase';
-import { DoctorDTO } from '../types/dto';
+import { searchService } from '../services/searchService';
 
 const fadeIn = keyframes`
   from {
@@ -108,24 +107,8 @@ const HomePage: React.FC = () => {
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [doctors, setDoctors] = useState<DoctorDTO[]>([]);
   
-  // Przenosimy utworzenie instancji serwisu poza useEffect
   const doctorService = useMemo(() => new DoctorService(supabase), []);
-  
-  useEffect(() => {
-    const fetchDoctors = async () => {
-      try {
-        const allDoctors = await doctorService.getDoctors();
-        setDoctors(allDoctors);
-      } catch (error) {
-        console.error('Błąd podczas pobierania listy lekarzy:', error);
-        setError('Nie udało się pobrać listy lekarzy. Spróbuj ponownie później.');
-      }
-    };
-
-    fetchDoctors();
-  }, [doctorService]); // dodajemy doctorService jako zależność
 
   const handleSearch = async (query: string) => {
     if (!user) {
@@ -137,24 +120,42 @@ const HomePage: React.FC = () => {
     setError(null);
     
     try {
-      const analysis = await analyzeHealthQuery(query);
+      const result = await searchService.analyzeHealthQuery(query);
       
-      const matchedDoctors = doctors
-        .map(doctor => ({
-          ...doctor,
-          relevance_score: analysis.relevance_scores[doctor.id] || 0
-        }))
-        .filter(doctor => doctor.relevance_score > 20)
-        .sort((a, b) => b.relevance_score - a.relevance_score);
+      // Pobierz lekarzy na podstawie nazw specjalizacji
+      const doctors = await doctorService.getDoctorsBySpecialtyNames(
+        result.analysis?.suggested_specialties.map((specialty: SearchAnalysis['suggested_specialties'][0]) => specialty.name) || []
+      );
 
       setSearchResult({
-        doctors: matchedDoctors,
         query,
-        analysis: {
-          symptoms: analysis.symptoms,
-          suggested_specialties: analysis.suggested_specialties
-        }
+        doctors: doctors.map(doctor => ({
+          ...doctor,
+          relevance_score: doctor.relevance_score || 0,
+          best_matching_specialty: result.analysis?.suggested_specialties.find(specialty => 
+            specialty.name === doctor.best_matching_specialty?.name
+          ) ? {
+            id: doctor.best_matching_specialty?.name.toLowerCase().replace(/\s+/g, '-') || '',
+            name: doctor.best_matching_specialty?.name || '',
+            matchPercentage: result.analysis?.suggested_specialties.find(
+              s => s.name === doctor.best_matching_specialty?.name
+            )?.matchPercentage || 0,
+            reasoning: result.analysis?.suggested_specialties.find(
+              s => s.name === doctor.best_matching_specialty?.name
+            )?.reasoning || ''
+          } : null
+        })),
+        analysis: result.analysis
       });
+
+      // Zapisz historię wyszukiwania
+      if (user) {
+        await searchService.saveSearchHistory(
+          user.id, 
+          query, 
+          result.analysis?.suggested_specialties.map((specialty: SearchAnalysis['suggested_specialties'][0]) => specialty.name) || []
+        );
+      }
     } catch (error) {
       console.error('Błąd podczas wyszukiwania:', error);
       setError('Przepraszamy, wystąpił błąd podczas analizy zapytania. Spróbuj ponownie później.');
@@ -205,7 +206,7 @@ const HomePage: React.FC = () => {
             <ResultsHeader>
               <ResultsTitle>Rekomendowani lekarze</ResultsTitle>
               <ResultsCount>
-                Znaleziono {searchResult.doctors.length} specjalistów dla Twojego problemu zdrowotnego
+                Znaleziono {searchResult.analysis?.suggested_specialties.length} specjalistów dla Twojego problemu zdrowotnego
               </ResultsCount>
             </ResultsHeader>
             
@@ -213,7 +214,13 @@ const HomePage: React.FC = () => {
               <SearchAnalysisPanel 
                 query={searchResult.query}
                 symptoms={searchResult.analysis.symptoms}
-                specialties={searchResult.analysis.suggested_specialties}
+                specialties={searchResult.analysis.suggested_specialties.map(s => s.name)}
+                specialtyMatches={searchResult.analysis.suggested_specialties.map(specialty => ({
+                  id: specialty.name.toLowerCase().replace(/\s+/g, '-'),
+                  name: specialty.name,
+                  matchPercentage: specialty.matchPercentage,
+                  reasoning: specialty.reasoning
+                }))}
               />
             )}
             
