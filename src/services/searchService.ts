@@ -13,9 +13,24 @@ export class SearchService {
   async analyzeHealthQuery(query: string): Promise<SearchResult> {
     const analysis = await analyzeHealthQueryWithSpecialties(query);
     
+    // Pobierz lekarzy z odpowiednimi specjalizacjami i procentami dopasowania
+    const doctors = await this.doctorService.getDoctorsBySpecialtyNames(
+      analysis.specialtyMatches.map(specialty => specialty.name),
+      analysis.specialtyMatches.map(specialty => ({
+        name: specialty.name,
+        matchPercentage: specialty.matchPercentage
+      }))
+    );
+
     return {
       query,
-      doctors: [],
+      doctors: doctors.map(doctor => ({
+        ...doctor,
+        relevance_score: doctor.relevance_score || 0,
+        best_matching_specialty: analysis.specialtyMatches.find(
+          specialty => doctor.specialties.some(s => s.name === specialty.name)
+        ) || null
+      })),
       analysis: {
         symptoms: analysis.symptoms,
         suggested_specialties: analysis.specialtyMatches.map(match => ({

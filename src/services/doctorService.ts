@@ -172,7 +172,15 @@ export class DoctorService {
     return data as DoctorDTO[];
   }
 
-  async getDoctorsBySpecialtyNames(specialtyNames: string[]): Promise<DoctorDTO[]> {
+  async getDoctorsBySpecialtyNames(
+    specialtyNames: string[],
+    specialtyMatches?: { name: string; matchPercentage: number }[]
+  ): Promise<DoctorDTO[]> {
+    if (!specialtyNames.length) {
+      return [];
+    }
+
+    // Pobierz specjalizacje z bazy danych
     const { data: specialties, error: specialtiesError } = await this.supabase
       .from('specialties')
       .select('id, name')
@@ -185,8 +193,72 @@ export class DoctorService {
     if (!specialties || specialties.length === 0) {
       return [];
     }
-    
-    const specialtyIds = specialties.map(s => s.id);
-    return this.getDoctorsBySpecialties(specialtyIds);
+
+    // Pobierz lekarzy z odpowiednimi specjalizacjami
+    const { data: doctors, error: doctorsError } = await this.supabase
+      .from('doctors')
+      .select(`
+        *,
+        specialties!doctors_specialties (
+          id,
+          name
+        ),
+        expertise_areas!doctors_expertise_areas (
+          id,
+          name
+        ),
+        addresses (
+          id,
+          street,
+          city,
+          state,
+          postal_code,
+          country
+        ),
+        ratings (
+          id,
+          rating,
+          comment,
+          created_at
+        )
+      `)
+      .eq('active', true)
+      .in('specialties.name', specialtyNames);
+
+    if (doctorsError) {
+      throw new Error(`Błąd podczas pobierania lekarzy: ${doctorsError.message}`);
+    }
+
+    if (!doctors) {
+      return [];
+    }
+
+    // Jeśli mamy dane o dopasowaniu z OpenAI, przypisz procent dopasowania
+    if (specialtyMatches) {
+      return doctors.map((doctor) => {
+        // Znajdź najwyższy procent dopasowania spośród specjalizacji lekarza
+        const bestMatch = Math.max(
+          ...doctor.specialties
+            .map((specialty: { name: string }) => {
+              const match = specialtyMatches.find((sm) => sm.name === specialty.name);
+              return match ? match.matchPercentage : 0;
+            })
+            .filter((percentage: number) => percentage > 0)
+        );
+
+        return {
+          ...doctor,
+          matchPercentage: bestMatch || 0,
+          relevance_score: bestMatch || 0 // dla kompatybilności wstecznej
+        };
+      }).filter(doctor => doctor.matchPercentage > 0); // Zwróć tylko lekarzy z dopasowaniem większym niż 0
+    }
+
+    // Jeśli nie ma danych o dopasowaniu, zwróć wszystkich znalezionych lekarzy z zerowym dopasowaniem
+    return doctors.map(doctor => ({
+      ...doctor,
+      matchPercentage: 0,
+      relevance_score: 0
+    }));
   }
 }

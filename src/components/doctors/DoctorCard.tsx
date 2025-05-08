@@ -156,7 +156,9 @@ const DialogActions = styled.div`
 `;
 
 interface DoctorCardProps {
-  doctor: DoctorDTO;
+  doctor: DoctorDTO & {
+    matchPercentage?: number;
+  };
   isAdmin?: boolean;
   onDelete?: (id: string) => void;
 }
@@ -204,9 +206,9 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
   return (
     <>
       <DoctorCardContainer>
-        {doctor.relevance_score !== undefined && (
-          <RelevanceScore score={doctor.relevance_score}>
-            {doctor.relevance_score}% Dopasowania
+        {doctor.matchPercentage !== undefined && (
+          <RelevanceScore score={doctor.matchPercentage}>
+            {doctor.matchPercentage}% Dopasowania
           </RelevanceScore>
         )}
 

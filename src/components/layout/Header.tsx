@@ -121,7 +121,10 @@ const Header: React.FC = () => {
                   as={Link} 
                   to="/signup" 
                   variant="primary"
+                
                   size="small"
+
+
                 >
                   Zarejestruj się
                 </Button>
