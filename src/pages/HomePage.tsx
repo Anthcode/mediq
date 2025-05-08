@@ -41,14 +41,14 @@ const HeroSection = styled.section`
 `;
 
 const Title = styled.h1`
-  color: white;
+  color: ${theme.colors.background.paper};
   font-size: 2rem;
   margin-bottom: ${theme.spacing(2)};
-  
-  @media (min-width: ${theme.breakpoints.md}) {
-    font-size: 3rem;
-  }
+  max-width: 800px;
+  margin: 0 auto ${theme.spacing(3)} auto;
 `;
+
+
 
 const Subtitle = styled.p`
   color: rgba(255, 255, 255, 0.9);
@@ -86,7 +86,7 @@ const ErrorMessage = styled.div`
 const UnauthorizedMessage = styled.div`
   text-align: center;
   background-color: ${theme.colors.background.paper};
-  padding: ${theme.spacing(4)};
+  padding: ${theme.spacing(2)};
   border-radius: ${theme.borderRadius.medium};
   margin-top: ${theme.spacing(4)};
 `;
@@ -99,6 +99,7 @@ const UnauthorizedTitle = styled.h2`
 const UnauthorizedText = styled.p`
   color: ${theme.colors.text.secondary};
   margin-bottom: ${theme.spacing(3)};
+  font-size: .875rem ;
 `;
 
 const HomePage: React.FC = () => {
@@ -129,22 +130,23 @@ const HomePage: React.FC = () => {
 
       setSearchResult({
         query,
-        doctors: doctors.map(doctor => ({
-          ...doctor,
-          relevance_score: doctor.relevance_score || 0,
-          best_matching_specialty: result.analysis?.suggested_specialties.find(specialty => 
-            specialty.name === doctor.best_matching_specialty?.name
-          ) ? {
-            id: doctor.best_matching_specialty?.name.toLowerCase().replace(/\s+/g, '-') || '',
-            name: doctor.best_matching_specialty?.name || '',
-            matchPercentage: result.analysis?.suggested_specialties.find(
-              s => s.name === doctor.best_matching_specialty?.name
-            )?.matchPercentage || 0,
-            reasoning: result.analysis?.suggested_specialties.find(
-              s => s.name === doctor.best_matching_specialty?.name
-            )?.reasoning || ''
-          } : null
-        })),
+        doctors: doctors.map(doctor => {
+          const matchingSpecialty = result.analysis?.suggested_specialties.find(
+            specialty => doctor.specialties?.some(s => s.name === specialty.name)
+          );
+          const matchPercent = matchingSpecialty?.matchPercentage || 0;
+          return {
+            ...doctor,
+            matchPercentage: matchPercent,
+            relevance_score: matchPercent, // maintain compatibility with existing type
+            best_matching_specialty: matchingSpecialty ? {
+              id: matchingSpecialty.name.toLowerCase().replace(/\s+/g, '-'),
+              name: matchingSpecialty.name,
+              matchPercentage: matchingSpecialty.matchPercentage,
+              reasoning: matchingSpecialty.reasoning
+            } : null
+          };
+        }),
         analysis: result.analysis
       });
 
@@ -182,6 +184,8 @@ const HomePage: React.FC = () => {
               <Button 
                 onClick={() => navigate('/login')}
                 variant="primary"
+                size="small"
+                style={{ marginTop: theme.spacing(1) }}
               >
                 Zaloguj się
               </Button>

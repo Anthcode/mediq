@@ -106,10 +106,13 @@ export const Button = styled.button<ButtonProps>`
           &:hover {
             background-color: ${color.dark};
             box-shadow: ${theme.shadows.medium};
+            color: ${color.contrastText};
+
           }
           
           &:active {
             background-color: ${color.dark};
+            color: ${color.contrastText};
           }
         `;
     }
