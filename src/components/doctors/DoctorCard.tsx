@@ -60,21 +60,6 @@ const InfoItem = styled.li`
   gap: ${theme.spacing(1)};
 `;
 
-const ExpertiseArea = styled.span`
-  background-color: ${theme.colors.primary.light};
-  color: ${theme.colors.primary.contrastText};
-  padding: ${theme.spacing(0.5)} ${theme.spacing(1)};
-  border-radius: ${theme.borderRadius.small};
-  font-size: 0.75rem;
-  margin-right: ${theme.spacing(0.5)};
-  margin-bottom: ${theme.spacing(0.5)};
-  display: inline-block;
-`;
-
-const ExpertiseContainer = styled.div`
-  margin-top: ${theme.spacing(2)};
-`;
-
 const RelevanceScore = styled.div<{ score: number }>`
   position: absolute;
   top: ${theme.spacing(1)};
@@ -240,7 +225,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
         
         <CardHeader>
           <CardTitle>{displayName}</CardTitle>
-          <p>{doctor.specialties?.map(s => s.name).join(", ")} • {doctor.experience} lat doświadczenia</p>
+          <p>{doctor.specialties} • {doctor.experience} lat doświadczenia</p>
           <RatingContainer>
             <StarFilled size={16} />
             <Rating>{averageRating}</Rating>
@@ -254,15 +239,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
               {addressText}
             </InfoItem>
           </InfoList>
-          
-          <ExpertiseContainer>
-            {doctor.expertise_areas?.slice(0, 4).map((area, index) => (
-              <ExpertiseArea key={index}>{area.name}</ExpertiseArea>
-            ))}
-            {doctor.expertise_areas && doctor.expertise_areas.length > 4 && (
-              <ExpertiseArea>+{doctor.expertise_areas.length - 4} więcej</ExpertiseArea>
-            )}
-          </ExpertiseContainer>
+          {/* Usunięto wyświetlanie expertise_areas, bo nie istnieje w modelu */}
         </CardContent>
         
         <CardFooter>

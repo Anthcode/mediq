@@ -85,12 +85,10 @@ const DoctorsPage: React.FC = () => {
       const filtered = doctors.filter(doctor => 
         doctor.first_name.toLowerCase().includes(query) ||
         doctor.last_name.toLowerCase().includes(query) ||
-        doctor.specialties.some(s => s.name.toLowerCase().includes(query)) ||
-        doctor.expertise_areas.some(e => e.name.toLowerCase().includes(query))
+        (doctor.specialties && doctor.specialties.toLowerCase().includes(query))
       );
       setFilteredDoctors(filtered);
     };
-
     filterDoctors();
   }, [searchQuery, doctors]);
 

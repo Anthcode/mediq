@@ -19,6 +19,7 @@ export interface Database {
           bio: string | null
           profile_image_url: string | null
           active: boolean
+          specialties: string
           created_at: string
           updated_at: string
         }
@@ -31,6 +32,7 @@ export interface Database {
           bio?: string | null
           profile_image_url?: string | null
           active?: boolean
+          specialties: string
           created_at?: string
           updated_at?: string
         }
@@ -43,6 +45,7 @@ export interface Database {
           bio?: string | null
           profile_image_url?: string | null
           active?: boolean
+          specialties?: string
           created_at?: string
           updated_at?: string
         }
@@ -80,74 +83,6 @@ export interface Database {
           country?: string | null
           created_at?: string
           updated_at?: string
-        }
-      }
-      specialties: {
-        Row: {
-          id: string
-          name: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      doctors_specialties: {
-        Row: {
-          doctor_id: string
-          specialty_id: string
-        }
-        Insert: {
-          doctor_id: string
-          specialty_id: string
-        }
-        Update: {
-          doctor_id?: string
-          specialty_id?: string
-        }
-      }
-      expertise_areas: {
-        Row: {
-          id: string
-          name: string
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      doctors_expertise_areas: {
-        Row: {
-          doctor_id: string
-          expertise_area_id: string
-        }
-        Insert: {
-          doctor_id: string
-          expertise_area_id: string
-        }
-        Update: {
-          doctor_id?: string
-          expertise_area_id?: string
         }
       }
       ratings: {
@@ -227,22 +162,6 @@ export type DoctorUpdate = Tables['doctors']['Update']
 export type Address = Tables['addresses']['Row']
 export type AddressInsert = Tables['addresses']['Insert']
 export type AddressUpdate = Tables['addresses']['Update']
-
-export type Specialty = Tables['specialties']['Row']
-export type SpecialtyInsert = Tables['specialties']['Insert']
-export type SpecialtyUpdate = Tables['specialties']['Update']
-
-export type DoctorSpecialty = Tables['doctors_specialties']['Row']
-export type DoctorSpecialtyInsert = Tables['doctors_specialties']['Insert']
-export type DoctorSpecialtyUpdate = Tables['doctors_specialties']['Update']
-
-export type ExpertiseArea = Tables['expertise_areas']['Row']
-export type ExpertiseAreaInsert = Tables['expertise_areas']['Insert']
-export type ExpertiseAreaUpdate = Tables['expertise_areas']['Update']
-
-export type DoctorExpertiseArea = Tables['doctors_expertise_areas']['Row']
-export type DoctorExpertiseAreaInsert = Tables['doctors_expertise_areas']['Insert']
-export type DoctorExpertiseAreaUpdate = Tables['doctors_expertise_areas']['Update']
 
 export type Rating = Tables['ratings']['Row']
 export type RatingInsert = Tables['ratings']['Insert']

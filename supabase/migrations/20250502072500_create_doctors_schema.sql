@@ -5,18 +5,24 @@
   1. Tabele główne:
     - doctors: dane lekarzy
     - addresses: adresy gabinetów
-    - specialties: specjalizacje lekarskie
-    - expertise_areas: obszary ekspertyzy
     - ratings: oceny lekarzy
     - search_history: historia wyszukiwań
-  2. Tabele łączące (junction):
-    - doctors_specialties
-    - doctors_expertise_areas
-  3. Indeksy i polityki bezpieczeństwa
+  2. Indeksy i polityki bezpieczeństwa
 */
 
 -- Tworzenie konfiguracji wyszukiwania tekstu dla języka polskiego
-CREATE TEXT SEARCH CONFIGURATION public.polish ( COPY = pg_catalog.simple );
+CREATE TEXT SEARCH CONFIGURATION IF NOT EXISTS public.polish ( COPY = pg_catalog.simple );
+
+-- Tabela profiles
+CREATE TABLE IF NOT EXISTS profiles (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    email text NOT NULL UNIQUE,
+    first_name text NOT NULL,
+    last_name text NOT NULL,
+    created_at timestamptz NOT NULL DEFAULT now(),
+    role varchar NOT NULL,
+    updated_at timestamptz NOT NULL DEFAULT now()
+);
 
 -- Tabela doctors
 CREATE TABLE IF NOT EXISTS doctors (
@@ -29,7 +35,8 @@ CREATE TABLE IF NOT EXISTS doctors (
     profile_image_url text,
     active boolean NOT NULL DEFAULT true,
     created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    specialties text
 );
 
 -- Tabela addresses
@@ -45,42 +52,12 @@ CREATE TABLE IF NOT EXISTS addresses (
     updated_at timestamptz NOT NULL DEFAULT now()
 );
 
--- Tabela specialties
-CREATE TABLE IF NOT EXISTS specialties (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    name text NOT NULL UNIQUE,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
-);
-
--- Tabela łącząca doctors_specialties
-CREATE TABLE IF NOT EXISTS doctors_specialties (
-    doctor_id uuid NOT NULL REFERENCES doctors(id) ON DELETE CASCADE,
-    specialty_id uuid NOT NULL REFERENCES specialties(id) ON DELETE CASCADE,
-    PRIMARY KEY (doctor_id, specialty_id)
-);
-
--- Tabela expertise_areas
-CREATE TABLE IF NOT EXISTS expertise_areas (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    name text NOT NULL UNIQUE,
-    created_at timestamptz NOT NULL DEFAULT now(),
-    updated_at timestamptz NOT NULL DEFAULT now()
-);
-
--- Tabela łącząca doctors_expertise_areas
-CREATE TABLE IF NOT EXISTS doctors_expertise_areas (
-    doctor_id uuid NOT NULL REFERENCES doctors(id) ON DELETE CASCADE,
-    expertise_area_id uuid NOT NULL REFERENCES expertise_areas(id) ON DELETE CASCADE,
-    PRIMARY KEY (doctor_id, expertise_area_id)
-);
-
 -- Tabela ratings
 CREATE TABLE IF NOT EXISTS ratings (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     doctor_id uuid NOT NULL REFERENCES doctors(id) ON DELETE CASCADE,
     user_id uuid NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    rating integer NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    rating integer NOT NULL,
     comment text,
     created_at timestamptz NOT NULL DEFAULT now(),
     updated_at timestamptz NOT NULL DEFAULT now()
@@ -96,7 +73,7 @@ CREATE TABLE IF NOT EXISTS search_history (
 );
 
 -- Indeks pełnotekstowy dla wyszukiwania lekarzy
-CREATE INDEX idx_doctors_fulltext ON doctors 
+CREATE INDEX IF NOT EXISTS idx_doctors_fulltext ON doctors 
 USING gin(to_tsvector('public.polish', first_name || ' ' || last_name));
 
 -- Triggery aktualizacji timestamps
@@ -118,13 +95,20 @@ CREATE TRIGGER update_addresses_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER update_profiles_updated_at
+    BEFORE UPDATE ON profiles
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_ratings_updated_at
+    BEFORE UPDATE ON ratings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- Włączenie Row Level Security
 ALTER TABLE doctors ENABLE ROW LEVEL SECURITY;
 ALTER TABLE addresses ENABLE ROW LEVEL SECURITY;
-ALTER TABLE specialties ENABLE ROW LEVEL SECURITY;
-ALTER TABLE doctors_specialties ENABLE ROW LEVEL SECURITY;
-ALTER TABLE expertise_areas ENABLE ROW LEVEL SECURITY;
-ALTER TABLE doctors_expertise_areas ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ratings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE search_history ENABLE ROW LEVEL SECURITY;
 
@@ -150,27 +134,16 @@ CREATE POLICY "Addresses can only be modified by administrators"
     TO authenticated
     USING (auth.jwt() ->> 'role' = 'administrator');
 
--- Polityki RLS dla specialties
-CREATE POLICY "Specialties are viewable by everyone"
-    ON specialties FOR SELECT
+-- Polityki RLS dla profiles
+CREATE POLICY "Profiles are viewable by everyone"
+    ON profiles FOR SELECT
     TO public
     USING (true);
 
-CREATE POLICY "Specialties can only be modified by administrators"
-    ON specialties FOR ALL
+CREATE POLICY "Users can update their own profile"
+    ON profiles FOR UPDATE
     TO authenticated
-    USING (auth.jwt() ->> 'role' = 'administrator');
-
--- Polityki RLS dla expertise_areas
-CREATE POLICY "Expertise areas are viewable by everyone"
-    ON expertise_areas FOR SELECT
-    TO public
-    USING (true);
-
-CREATE POLICY "Expertise areas can only be modified by administrators"
-    ON expertise_areas FOR ALL
-    TO authenticated
-    USING (auth.jwt() ->> 'role' = 'administrator');
+    USING (auth.uid() = id);
 
 -- Polityki RLS dla ratings
 CREATE POLICY "Ratings are viewable by everyone"
@@ -205,9 +178,9 @@ CREATE POLICY "Users can create search history entries"
     WITH CHECK (auth.uid() = user_id);
 
 -- Indeksy dla poprawy wydajności
-CREATE INDEX idx_doctors_active ON doctors(active);
-CREATE INDEX idx_addresses_doctor_id ON addresses(doctor_id);
-CREATE INDEX idx_ratings_doctor_id ON ratings(doctor_id);
-CREATE INDEX idx_ratings_user_id ON ratings(user_id);
-CREATE INDEX idx_search_history_user_id ON search_history(user_id);
-CREATE INDEX idx_search_history_created_at ON search_history(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_doctors_active ON doctors(active);
+CREATE INDEX IF NOT EXISTS idx_addresses_doctor_id ON addresses(doctor_id);
+CREATE INDEX IF NOT EXISTS idx_ratings_doctor_id ON ratings(doctor_id);
+CREATE INDEX IF NOT EXISTS idx_ratings_user_id ON ratings(user_id);
+CREATE INDEX IF NOT EXISTS idx_search_history_user_id ON search_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_search_history_created_at ON search_history(created_at DESC);

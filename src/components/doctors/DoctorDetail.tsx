@@ -4,7 +4,6 @@ import { MapPin, Award, Briefcase, GraduationCap, Star } from 'lucide-react';
 import { theme } from '../../styles/theme';
 import { Button } from '../common/Button';
 import type { DoctorDTO } from '../../types/dto';
-import type { Specialty, ExpertiseArea } from '../../types/database.types';
 
 const DetailContainer = styled.div`
   display: flex;
@@ -129,21 +128,6 @@ const InfoText = styled.p`
   line-height: 1.5;
 `;
 
-const ExpertiseContainer = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${theme.spacing(1)};
-  margin-top: ${theme.spacing(1)};
-`;
-
-const ExpertiseTag = styled.span`
-  background-color: ${theme.colors.primary.light};
-  color: ${theme.colors.primary.contrastText};
-  padding: ${theme.spacing(0.5)} ${theme.spacing(1.5)};
-  border-radius: ${theme.borderRadius.small};
-  font-size: 0.875rem;
-`;
-
 const ButtonGroup = styled.div`
   display: flex;
   flex-direction: column;
@@ -164,7 +148,7 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
           <Avatar src={doctor.profile_image_url || undefined} alt={`${doctor.first_name} ${doctor.last_name}`} />
           <HeaderInfo>
             <DoctorName>{`${doctor.first_name} ${doctor.last_name}`}</DoctorName>
-            <DoctorSpecialty>{doctor.specialties?.map((s: Specialty) => s.name).join(", ")}</DoctorSpecialty>
+            <DoctorSpecialty>{doctor.specialties}</DoctorSpecialty>
             <RatingContainer>
               <Star size={20} color={theme.colors.warning.main} />
               <RatingValue>Brak ocen</RatingValue>
@@ -176,16 +160,6 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
         <InfoCard>
           <CardTitle>O lekarzu</CardTitle>
           <InfoText>{doctor.bio}</InfoText>
-        </InfoCard>
-      
-        <InfoCard>
-          <CardTitle>Obszary specjalizacji</CardTitle>
-          <InfoText>Dr. {doctor.first_name} specjalizuje się w leczeniu następujących schorzeń:</InfoText>
-          <ExpertiseContainer>
-            {doctor.expertise_areas?.map((area: ExpertiseArea, index: number) => (
-              <ExpertiseTag key={index}>{area.name}</ExpertiseTag>
-            ))}
-          </ExpertiseContainer>
         </InfoCard>
       </InfoSection>
       
@@ -234,7 +208,7 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
               </InfoIcon>
               <InfoContent>
                 <InfoLabel>Specjalizacja</InfoLabel>
-                <InfoText>{doctor.specialties?.map((s: Specialty) => s.name).join(", ")}</InfoText>
+                <InfoText>{doctor.specialties}</InfoText>
               </InfoContent>
             </InfoItem>
           </InfoList>
