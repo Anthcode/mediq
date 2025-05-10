@@ -2,12 +2,8 @@
 export type { 
     Doctor,
     Address,
-    Specialty,
-    ExpertiseArea,
     Rating,
     SearchHistory,
-    DoctorSpecialty,
-    DoctorExpertiseArea,
     DoctorInsert,
     DoctorUpdate,
     AddressInsert,

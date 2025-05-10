@@ -1,18 +1,18 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import { Container } from '../components/common/Container';
 import { theme } from '../styles/theme';
 import SearchBar from '../components/search/SearchBar';
 import DoctorsList from '../components/doctors/DoctorsList';
 import SearchAnalysisPanel from '../components/search/SearchAnalysisPanel';
-import { SearchResult, SearchAnalysis } from '../types/search';
+import { SearchResult, SpecialtyMatch } from '../types/search';
 import { LoadingSpinner, LoadingContainer } from '../components/common/LoadingSpinner';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { DoctorService } from '../services/doctorService';
 import { supabase } from '../lib/supabase';
-import { searchService } from '../services/searchService';
+import { analyzeHealthQueryWithSpecialties } from '../lib/openai';
 
 const fadeIn = keyframes`
   from {
@@ -48,8 +48,6 @@ const Title = styled.h1`
   margin: 0 auto ${theme.spacing(3)} auto;
 `;
 
-
-
 const Subtitle = styled.p`
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.25rem;
@@ -65,13 +63,10 @@ const ResultsHeader = styled.div`
   margin-bottom: ${theme.spacing(3)};
 `;
 
-const ResultsTitle = styled.h2`
-  font-size: 1.75rem;
-  margin-bottom: ${theme.spacing(1)};
-`;
-
-const ResultsCount = styled.p`
-  color: ${theme.colors.text.secondary};
+const ResultCount = styled.h2`
+  font-size: 1.25rem;
+  color: ${theme.colors.text.primary};
+  margin-bottom: ${theme.spacing(2)};
 `;
 
 const ErrorMessage = styled.div`
@@ -99,7 +94,7 @@ const UnauthorizedTitle = styled.h2`
 const UnauthorizedText = styled.p`
   color: ${theme.colors.text.secondary};
   margin-bottom: ${theme.spacing(3)};
-  font-size: .875rem ;
+  font-size: .875rem;
 `;
 
 const HomePage: React.FC = () => {
@@ -109,7 +104,7 @@ const HomePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  const doctorService = useMemo(() => new DoctorService(supabase), []);
+  //const doctorService = useMemo(() => new DoctorService(supabase), []);
 
   const handleSearch = async (query: string) => {
     if (!user) {
@@ -121,43 +116,73 @@ const HomePage: React.FC = () => {
     setError(null);
     
     try {
-      const result = await searchService.analyzeHealthQuery(query);
-      
-      // Pobierz lekarzy na podstawie nazw specjalizacji
-      const doctors = await doctorService.getDoctorsBySpecialtyNames(
-        result.analysis?.suggested_specialties.map((specialty: SearchAnalysis['suggested_specialties'][0]) => specialty.name) || []
-      );
+      const result = await analyzeHealthQueryWithSpecialties(query);
+      if (!result) {
+        setError('Nie znaleziono wyników dla podanego zapytania.');
+        return;
+      }
 
-      setSearchResult({
-        query,
-        doctors: doctors.map(doctor => {
-          const matchingSpecialty = result.analysis?.suggested_specialties.find(
-            specialty => doctor.specialties?.some(s => s.name === specialty.name)
-          );
-          const matchPercent = matchingSpecialty?.matchPercentage || 0;
-          return {
-            ...doctor,
-            matchPercentage: matchPercent,
-            relevance_score: matchPercent, // maintain compatibility with existing type
-            best_matching_specialty: matchingSpecialty ? {
-              id: matchingSpecialty.name.toLowerCase().replace(/\s+/g, '-'),
-              name: matchingSpecialty.name,
-              matchPercentage: matchingSpecialty.matchPercentage,
-              reasoning: matchingSpecialty.reasoning
-            } : null
-          };
-        }),
-        analysis: result.analysis
+
+      
+      // Wyciągnięcie nazw specjalizacji
+      const specialtyNames = result.specialtyMatches.map((specialty: { name: string }) => specialty.name);
+
+
+      // Pobierz wszystkich lekarzy i filtruj po polu specialties (string)
+      const doctorService = new DoctorService(supabase);
+      const doctors = await doctorService.getDoctorsBySpecialtyName(specialtyNames);
+
+      if (!doctors || doctors.length === 0) {
+        setError('Nie znaleziono lekarzy dla podanego zapytania.');
+        return;
+      }
+      // Przypisz stopień dopasowania do każdego lekarza
+   
+
+     
+
+      const doctorsWithRelevance = doctors.map(doctor => {
+        const bestMatch = result.specialtyMatches.find((specialty: { name: string; matchPercentage: number; reasoning?: string }) => 
+          doctor.specialties && doctor.specialties.toLowerCase().includes(specialty.name.toLowerCase())
+        );
+        return {
+          ...doctor,
+          relevance_score: bestMatch ? bestMatch.matchPercentage : 0,
+          matchPercentage: bestMatch ? bestMatch.matchPercentage : undefined, // <-- dodajemy matchPercentage
+          best_matching_specialty: bestMatch ? {
+            id: bestMatch.id,
+            name: bestMatch.name,
+            matchPercentage: bestMatch.matchPercentage,
+            reasoning: bestMatch.reasoning
+          } : null
+        };
       });
 
-      // Zapisz historię wyszukiwania
-      if (user) {
-        await searchService.saveSearchHistory(
-          user.id, 
-          query, 
-          result.analysis?.suggested_specialties.map((specialty: SearchAnalysis['suggested_specialties'][0]) => specialty.name) || []
-        );
-      }
+      // Sortuj lekarzy według stopnia dopasowania (od najwyższego do najniższego)
+      doctorsWithRelevance.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+
+      // Przygotuj dopasowania specjalizacji dla panelu analizy
+      const specialtyMatchesForPanel: SpecialtyMatch[] = result.specialtyMatches.map(specialty => ({
+        id: specialty.id || specialty.name.toLowerCase().replace(/\s+/g, '-'),
+        name: specialty.name,
+        matchPercentage: specialty.matchPercentage,
+        reasoning: specialty.reasoning || ''
+      }));
+
+      // Ustaw wynik wyszukiwania
+      setSearchResult({
+        query,
+        doctors: doctorsWithRelevance,
+        analysis: {
+          symptoms: result.symptoms,
+          suggested_specialties: specialtyMatchesForPanel.map(specialty => ({
+            name: specialty.name,
+            reasoning: specialty.reasoning || '',
+            matchPercentage: specialty.matchPercentage
+          }))
+        }
+      });
+
     } catch (error) {
       console.error('Błąd podczas wyszukiwania:', error);
       setError('Przepraszamy, wystąpił błąd podczas analizy zapytania. Spróbuj ponownie później.');
@@ -166,6 +191,37 @@ const HomePage: React.FC = () => {
     }
   };
   
+  // Renderowanie wyników wyszukiwania dla komponentu 
+  const renderSearchResults = () => {
+    if (!searchResult?.analysis) return null;
+
+    const specialtyMatches: SpecialtyMatch[] = searchResult.analysis.suggested_specialties.map(specialty => ({
+      id: specialty.name.toLowerCase().replace(/\s+/g, '-'),
+      name: specialty.name,
+      matchPercentage: specialty.matchPercentage,
+      reasoning: specialty.reasoning
+    }));
+
+    return (
+      <ResultsContainer>
+        <ResultsHeader>
+          <ResultCount>
+            Znaleziono {searchResult.doctors.length} lekarzy dla Twojego problemu zdrowotnego
+          </ResultCount>
+        </ResultsHeader>
+        
+        <SearchAnalysisPanel 
+          query={searchResult.query}
+          symptoms={searchResult.analysis.symptoms}
+          specialties={searchResult.analysis.suggested_specialties.map(s => s.name)}
+          specialtyMatches={specialtyMatches}
+        />
+        
+        <DoctorsList doctors={searchResult.doctors}  />
+      </ResultsContainer>
+    );
+  };
+
   return (
     <HomeContainer>
       <HeroSection>
@@ -195,9 +251,7 @@ const HomePage: React.FC = () => {
       </HeroSection>
       
       <Container>
-        {error && (
-          <ErrorMessage>{error}</ErrorMessage>
-        )}
+        {error && <ErrorMessage>{error}</ErrorMessage>}
         
         {isLoading && (
           <LoadingContainer>
@@ -205,32 +259,7 @@ const HomePage: React.FC = () => {
           </LoadingContainer>
         )}
         
-        {!isLoading && searchResult && user && (
-          <ResultsContainer>
-            <ResultsHeader>
-              <ResultsTitle>Rekomendowani lekarze</ResultsTitle>
-              <ResultsCount>
-                Znaleziono {searchResult.analysis?.suggested_specialties.length} specjalistów dla Twojego problemu zdrowotnego
-              </ResultsCount>
-            </ResultsHeader>
-            
-            {searchResult.analysis && (
-              <SearchAnalysisPanel 
-                query={searchResult.query}
-                symptoms={searchResult.analysis.symptoms}
-                specialties={searchResult.analysis.suggested_specialties.map(s => s.name)}
-                specialtyMatches={searchResult.analysis.suggested_specialties.map(specialty => ({
-                  id: specialty.name.toLowerCase().replace(/\s+/g, '-'),
-                  name: specialty.name,
-                  matchPercentage: specialty.matchPercentage,
-                  reasoning: specialty.reasoning
-                }))}
-              />
-            )}
-            
-            <DoctorsList doctors={searchResult.doctors} />
-          </ResultsContainer>
-        )}
+        {!isLoading && searchResult && user && renderSearchResults()}
       </Container>
     </HomeContainer>
   );

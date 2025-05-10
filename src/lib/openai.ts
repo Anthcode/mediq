@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { SpecialtyService } from '../services/specialtyService';
+import { supabase } from './supabase';
 import { HealthQueryAnalysis } from '../types/search';
 
 const openaiClient = new OpenAI({
@@ -7,28 +7,37 @@ const openaiClient = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+// Funkcja pobierająca unikalne specjalizacje lekarzy z bazy
+export async function fetchUniqueDoctorSpecialties(): Promise<string[]> {
+  const { data, error } = await supabase
+    .from('doctors')
+    .select('specialties');
+  if (error) throw new Error('Błąd pobierania specjalizacji: ' + error.message);
+  // Rozdziel tekstowe specjalizacje na unikalne wartości
+  const all = (data || [])
+    .map(row => row.specialties)
+    .filter(Boolean)
+    .flatMap((s: string) => s.split(',').map((x: string) => x.trim()).filter(Boolean));
+  return Array.from(new Set(all)).sort();
+}
+
 export async function analyzeHealthQueryWithSpecialties(query: string): Promise<HealthQueryAnalysis> {
-  const specialtyService = new SpecialtyService();
-  const allSpecialties = await specialtyService.getAllSpecialties();
- 
-  // Uzyskanie listy dostępnych specjalizacji z bazy danych
-  const specialtiesContext = allSpecialties.map(s => ({
-    id: s.id,
-    name: s.name
-  }));
- 
+  // Pobierz unikalne specjalizacje z bazy
+  const specialtiesArr = await fetchUniqueDoctorSpecialties();
+  const specjalizationsList = specialtiesArr.join(', ');
+
   const prompt = `
   Przeanalizuj następujący opis objawów pacjenta i dopasuj najlepsze specjalizacje lekarskie.
- 
+  
   Objawy:
   "${query}"
- 
-  Dostępne specjalizacje:
-  ${JSON.stringify(specialtiesContext)}
- 
+
+  Wybierz 3 najlepsze specjalizacje z poniższej listy:
+  "${specjalizationsList}"
+  
   Dla każdej dostępnej specjalizacji musisz użyć dokładnie takiego samego id jak w podanej liście dostępnych specjalizacji.
   Zwróć listę zidentyfikowanych objawów oraz 3 najlepiej dopasowane specjalizacje.
-  Dla każdej specjalizacji podaj procentowe dopasowanie jako liczbę od 0 do 100.
+  Dla każdej specjalizacji podaj procentowe dopasowanie jako liczbę od 60 do 100.
   Dla każdej specjalizacji podaj krótkie uzasadnienie, dlaczego jest odpowiednia dla opisanych objawów.
   `;
  
@@ -39,15 +48,13 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
         {
           role: "system",
           content: `Jesteś specjalistą medycznym, który pomaga w identyfikacji odpowiednich specjalizacji lekarskich na podstawie objawów.
-          Musisz dokładnie używać identyfikatorów z dostarczonej listy specjalizacji - nie twórz wymyślonych identyfikatorów.
           Zawsze odpowiadaj dokładnie w następującym formacie JSON:
           {
             "symptoms": ["objaw1", "objaw2", ...],
             "specialtyMatches": [
               {
-                "id": "rzeczywiste_id_z_listy",
                 "name": "nazwa_specjalizacji",
-                "matchPercentage": liczba_od_0_do_100,
+                "matchPercentage": liczba_od_60_do_100,
                 "reasoning": "uzasadnienie"
               },
               ...
@@ -59,7 +66,8 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
           content: prompt
         }
       ],
-      temperature: 0.3,
+      temperature: 0,
+      max_tokens: 800
       
     });
    
@@ -80,10 +88,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
     // Sortowanie według stopnia dopasowania
     result.specialtyMatches.sort((a, b) => b.matchPercentage - a.matchPercentage);
     
-    // Weryfikacja czy każda specjalizacja ma poprawne ID z naszej bazy
-    result.specialtyMatches = result.specialtyMatches.filter(match => 
-      allSpecialties.some(s => s.id === match.id)
-    );
+
     
     console.log('OpenAI Analysis:', result);
    

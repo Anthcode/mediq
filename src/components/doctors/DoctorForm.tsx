@@ -4,7 +4,6 @@ import { theme } from '../../styles/theme';
 import { Button } from '../common/Button';
 import { FormInput } from '../common/Input';
 import { CreateDoctorCommand, UpdateDoctorCommand, CreateAddressCommand, DoctorDTO } from '../../types/dto';
-import SpecialtySelect from './SpecialtySelect';
 import AddressForm from './AddressForm';
 
 const FormContainer = styled.form`
@@ -68,8 +67,7 @@ const initialFormState = (doctor?: DoctorDTO): CreateDoctorCommand => ({
   education: doctor?.education || '',
   bio: doctor?.bio || '',
   profile_image_url: doctor?.profile_image_url || '',
-  specialties: doctor?.specialties?.map(s => s.id) || [],
-  expertise_areas: doctor?.expertise_areas?.map(e => e.id) || [],
+  specialties: doctor?.specialties || '', // teraz string
   addresses: doctor?.addresses || []
 });
 
@@ -92,26 +90,22 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
       [name]: value
     }));
     setErrors(prev => {
-      const { [name]: removed, ...rest } = prev;
+      const rest = { ...prev };
+      delete rest[name];
       return rest;
     });
-  }
-, []);
+  }, []);
 
   const validateForm = useCallback((): boolean => {
     const newErrors: FormErrors = {};
-
     if (!formData.first_name?.trim()) {
       newErrors.first_name = 'Imię jest wymagane';
     }
     if (!formData.last_name?.trim()) {
       newErrors.last_name = 'Nazwisko jest wymagane';
     }
-    if (!formData.specialties?.length) {
-      newErrors.specialties = 'Wybierz przynajmniej jedną specjalizację';
-    }
-    if (!formData.expertise_areas?.length) {
-      newErrors.expertise_areas = 'Wybierz przynajmniej jeden obszar ekspertyzy';
+    if (!formData.specialties?.trim()) {
+      newErrors.specialties = 'Podaj specjalizację (pole tekstowe)';
     }
     if (!formData.addresses?.length) {
       newErrors.addresses = 'Dodaj przynajmniej jeden adres';
@@ -122,32 +116,9 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
         }
       });
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [formData]);
-
-  const handleSpecialtiesChange = useCallback((ids: string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      specialties: ids
-    }));
-    setErrors(prev => {
-      const { specialties: _, ...rest } = prev;
-      return rest;
-    });
-  }, []);
-
-  const handleExpertiseAreasChange = useCallback((ids: string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      expertise_areas: ids
-    }));
-    setErrors(prev => {
-      const { expertise_areas: _, ...rest } = prev;
-      return rest;
-    });
-  }, []);
 
   const handleAddressChange = useCallback((index: number, address: CreateAddressCommand) => {
     setFormData(prev => {
@@ -159,7 +130,8 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
       };
     });
     setErrors(prev => {
-      const { [`address_${index}`]: removed, ...rest } = prev;
+      const rest = { ...prev };
+      delete rest[`address_${index}`];
       return rest;
     });
   }, []);
@@ -188,7 +160,8 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
       addresses: prev.addresses.filter((_, i) => i !== index)
     }));
     setErrors(prev => {
-      const { [`address_${index}`]: removed, ...rest } = prev;
+      const rest = { ...prev };
+      delete rest[`address_${index}`];
       return rest;
     });
   }, []);
@@ -240,7 +213,6 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
           aria-describedby={errors.last_name ? 'last-name-error' : undefined}
         />
       </FormSection>
-
       <FormSection>
         <FormInput
           id="experience"
@@ -261,7 +233,6 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
           disabled={isFormDisabled}
         />
       </FormSection>
-
       <FormSection>
         <FormInput
           id="bio"
@@ -282,23 +253,20 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
           disabled={isFormDisabled}
         />
       </FormSection>
-
       <FormSection>
-        <SpecialtySelect
-          type="specialty"
-          selectedIds={formData.specialties}
-          onChange={handleSpecialtiesChange}
+        <FormInput
+          id="specialties"
+          name="specialties"
+          label="Specjalizacje (wpisz tekstowo, np. Internista, Kardiolog)"
+          value={formData.specialties || ''}
+          onChange={handleInputChange}
           error={errors.specialties}
-        />
-        <SpecialtySelect
-          type="expertise"
-          selectedIds={formData.expertise_areas}
-          onChange={handleExpertiseAreasChange}
-          error={errors.expertise_areas}
+          required
+          disabled={isFormDisabled}
         />
       </FormSection>
     </>
-  ), [formData, errors, handleInputChange, handleSpecialtiesChange, handleExpertiseAreasChange, isFormDisabled]);
+  ), [formData, errors, handleInputChange, isFormDisabled]);
 
   return (
     <FormContainer onSubmit={handleSubmit} aria-label={doctor ? 'Edycja lekarza' : 'Dodawanie nowego lekarza'}>
