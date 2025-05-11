@@ -225,7 +225,8 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
         
         <CardHeader>
           <CardTitle>{displayName}</CardTitle>
-          <p>{doctor.specialties} • {doctor.experience} lat doświadczenia</p>
+          <p>{doctor.specialties}</p> 
+          <p>• {doctor.experience} lat doświadczenia</p>
           <RatingContainer>
             <StarFilled size={16} />
             <Rating>{averageRating}</Rating>

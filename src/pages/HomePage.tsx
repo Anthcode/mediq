@@ -136,7 +136,8 @@ const HomePage: React.FC = () => {
         setError('Nie znaleziono lekarzy dla podanego zapytania.');
         return;
       }
-      // Przypisz stopień dopasowania do każdego lekarza
+      // Zapisz wyniki wyszukiwania w tabeli 
+      
    
 
      
