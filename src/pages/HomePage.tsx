@@ -137,8 +137,8 @@ const HomePage: React.FC = () => {
         return;
       }
       // Zapisz wyniki wyszukiwania w tabeli 
-      
-   
+
+
 
      
 
