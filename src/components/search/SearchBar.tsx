@@ -90,12 +90,20 @@ const AuthRequiredInfo = styled.div`
 interface SearchBarProps {
   onSearch: (query: string) => void;
   isLoading: boolean;
+  initialQuery?: string;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, initialQuery = '' }) => {
   const { user } = useAuth();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   
+  React.useEffect(() => {
+    if (initialQuery) {
+      setQuery(initialQuery);
+      onSearch(initialQuery);
+    }
+  }, [initialQuery, onSearch]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (query.trim() && !isLoading && user) {

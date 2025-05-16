@@ -55,6 +55,10 @@ const Header: React.FC = () => {
     try {
       // Najpierw wyczyść stan użytkownika
       setUser(null);
+      // Następnie wyczyść dane użytkownika z localStorage
+      localStorage.removeItem('mediq_auth');
+      // Możesz również wyczyścić inne dane, jeśli są przechowywane w localStorage
+
       
       // Następnie wyloguj z Supabase
       const { error } = await supabase.auth.signOut();

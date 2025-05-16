@@ -353,6 +353,7 @@ export const SignupPage: React.FC = () => {
     setIsLoading(true);
     
     try {
+      // 1. Próba utworzenia konta użytkownika
       const { data, error } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -367,22 +368,20 @@ export const SignupPage: React.FC = () => {
       if (error) {
         throw new Error(error.message);
       }
-      
-      if (data.user) {
-        // Utworzenie rekordu w tabeli profiles
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert([
-            {
-              id: data.user.id,
-              first_name: formData.firstName,
-              last_name: formData.lastName,
-              role: 'user' // Domyślna rola dla nowych użytkowników
-            }
-          ]);
+        if (data.user) {
+        // 2. Utworzenie rekordu w tabeli profiles
+        const { error: profileError } = await supabase.rpc('create_user_profile', {
+          user_id: data.user.id,
+          user_email: formData.email,
+          user_first_name: formData.firstName,
+          user_last_name: formData.lastName
+        });
 
         if (profileError) {
-          throw new Error('Nie udało się utworzyć profilu użytkownika');
+          console.error('Błąd tworzenia profilu:', profileError);
+          // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
+          await supabase.auth.admin.deleteUser(data.user.id);
+          throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
         }
 
         setUser({
@@ -397,7 +396,7 @@ export const SignupPage: React.FC = () => {
     } catch (error) {
       console.error('Błąd rejestracji:', error);
       setErrors({
-        general: `Rejestracja nie powiodła się: ${error instanceof Error ? error.message : 'Nieznany błąd'}`
+        general: `${error instanceof Error ? error.message : 'Nieznany błąd'}`
       });
     } finally {
       setIsLoading(false);

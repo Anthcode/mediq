@@ -14,7 +14,8 @@ const addressSchema = z.object({
   city: z.string().min(1, 'Miasto jest wymagane'),
   state: z.string().min(1, 'Województwo jest wymagane'),
   postal_code: z.string().min(1, 'Kod pocztowy jest wymagany'),
-  country: z.string().min(1, 'Kraj jest wymagany')
+  country: z.string().min(1, 'Kraj jest wymagany'),
+  doctor_id: z.string().uuid().optional() // doctor_id będzie dodawane w serwisie
 });
 
 const createDoctorSchema = z.object({
@@ -25,7 +26,7 @@ const createDoctorSchema = z.object({
   education: z.string().optional(),
   bio: z.string().optional(),
   profile_image_url: z.string().url().optional(),
-  specialties: z.array(z.string().uuid()).min(1, 'Przynajmniej jedna specjalizacja jest wymagana'),
+  specialties: z.string().uuid(),
   expertise_areas: z.array(z.string().uuid()).min(1, 'Przynajmniej jeden obszar ekspertyzy jest wymagany'),
   addresses: z.array(addressSchema).min(1, 'Przynajmniej jeden adres jest wymagany')
 });
@@ -77,13 +78,14 @@ const createDoctorHandler = async (
     const validationResult = createDoctorSchema.safeParse((req as AuthenticatedRequest).body);
     if (!validationResult.success) {
       res.status(400).json({ 
-        error: 'Błąd walidacji', 
-        details: validationResult.error.errors 
+        error: validationResult.error 
       });
       return;
     }
 
-    const doctor = await doctorService.createDoctor(validationResult.data as CreateDoctorCommand);
+    const doctor = await doctorService.createDoctor(
+      validationResult.data as CreateDoctorCommand
+    );
     res.status(201).json(doctor);
   } catch (error) {
     next(error);
@@ -99,8 +101,7 @@ const updateDoctorHandler = async (
     const validationResult = updateDoctorSchema.safeParse((req as AuthenticatedRequest).body);
     if (!validationResult.success) {
       res.status(400).json({ 
-        error: 'Błąd walidacji', 
-        details: validationResult.error.errors 
+        error: validationResult.error 
       });
       return;
     }
@@ -137,8 +138,7 @@ const addRatingHandler = async (
     const validationResult = ratingSchema.safeParse(req.body);
     if (!validationResult.success) {
       res.status(400).json({ 
-        error: 'Błąd walidacji', 
-        details: validationResult.error.errors 
+        error: validationResult.error 
       });
       return;
     }

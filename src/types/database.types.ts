@@ -119,21 +119,21 @@ export interface Database {
           id: string
           user_id: string
           query: string
-          specialties: Json | null
+          specialties: string[]
           created_at: string
         }
         Insert: {
           id?: string
           user_id: string
           query: string
-          specialties?: Json | null
+          specialties: string[]
           created_at?: string
         }
         Update: {
           id?: string
           user_id?: string
           query?: string
-          specialties?: Json | null
+          specialties?: string[]
           created_at?: string
         }
       }

@@ -66,8 +66,8 @@ export type CreateRatingCommand = Omit<RatingInsert, 'id' | 'created_at' | 'upda
 // DTO reprezentujący historię wyszukiwania
 export type SearchHistoryDTO = SearchHistory;
 
-// Command model dla tworzenia rekordu historii wyszukiwania
-export type CreateSearchHistoryCommand = Omit<SearchHistoryInsert, 'id' | 'created_at'>;
+// Command model dla tworzenia rekordu historii wyszukiwania - wersja podstawowa
+export type CreateSearchHistoryCommandBase = Omit<SearchHistoryInsert, 'id' | 'created_at'>;
 
 /* 4. AI Analysis DTO */
 
@@ -118,4 +118,13 @@ export interface RegisterDTO {
     last_name: string;
     email: string;
     password: string;
+}
+
+/* 7. Search History Command Models */
+
+// Rozszerzona wersja command modelu dla historii wyszukiwania
+export interface CreateSearchHistoryCommand {
+    user_id: string;
+    query: string;
+    specialties: string[];
 }

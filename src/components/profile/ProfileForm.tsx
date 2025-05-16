@@ -5,6 +5,7 @@ import { Button } from '../common/Button';
 import { Input, Label, FormGroup, InputError } from '../common/Input';
 import { UserProfileDTO, UpdateUserProfileCommand } from '../../types/dto';
 
+
 const FormContainer = styled.form`
   display: flex;
   flex-direction: column;
@@ -33,6 +34,7 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   const [formData, setFormData] = useState({
     first_name: profile.first_name,
     last_name: profile.last_name,
+    role: profile.role
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -81,6 +83,20 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   return (
     <FormContainer onSubmit={handleSubmit}>
+
+
+
+      <FormGroup>
+        <Label htmlFor="role">Rola</Label>
+        <Input
+          id="role"
+          name="role"
+          value={formData.role}
+          onChange={handleChange}
+          disabled
+        />
+      </FormGroup>
+
       <FormGroup>
         <Label htmlFor="first_name">Imię</Label>
         <Input
