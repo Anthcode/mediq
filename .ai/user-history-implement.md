@@ -827,7 +827,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, initialQuery
 CREATE INDEX IF NOT EXISTS idx_search_history_user_id_created_at ON search_history(user_id, created_at DESC);
 ```
 
-2. Zabezpiecz polityki RLS w Supabase, aby użytkownicy mogli widzieć tylko swoją historię:
+1. Zabezpiecz polityki RLS w Supabase, aby użytkownicy mogli widzieć tylko swoją historię:
 
 ```sql
 -- Doprecyzuj polityki RLS dla search_history
