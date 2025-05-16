@@ -104,15 +104,42 @@ export class DoctorService {
 
     return this.getDoctorById(data.id);
   }
-
   async updateDoctor(id: string, command: UpdateDoctorCommand): Promise<DoctorDTO> {
-    const { error } = await this.supabase
+    // Rozpocznij transakcję
+    const { addresses, ...doctorData } = command;
+    
+    // Aktualizuj podstawowe dane lekarza
+    const { error: doctorError } = await this.supabase
       .from('doctors')
-      .update(command)
+      .update(doctorData)
       .eq('id', id);
 
-    if (error) {
-      throw new Error(`Failed to update doctor: ${error.message}`);
+    if (doctorError) {
+      throw new Error(`Failed to update doctor: ${doctorError.message}`);
+    }
+
+    // Jeśli są nowe adresy do zaktualizowania
+    if (addresses && addresses.length > 0) {
+      // Usuń stare adresy
+      const { error: deleteError } = await this.supabase
+        .from('addresses')
+        .delete()
+        .eq('doctor_id', id);
+
+      if (deleteError) {
+        throw new Error(`Failed to update addresses: ${deleteError.message}`);
+      }      // Dodaj nowe adresy z użyciem funkcji RPC
+      const { error: addressError } = await this.supabase.rpc('manage_doctor_addresses', {
+        p_doctor_id: id,
+        p_addresses: addresses.map(address => ({
+          ...address,
+          doctor_id: id
+        }))
+      });
+
+      if (addressError) {
+        throw new Error(`Failed to insert new addresses: ${addressError.message}`);
+      }
     }
 
     return this.getDoctorById(id);

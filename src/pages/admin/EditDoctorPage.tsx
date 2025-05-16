@@ -30,7 +30,7 @@ const ErrorMessage = styled.div`
   color: ${theme.colors.error.main};
   text-align: center;
   padding: ${theme.spacing(2)};
-  background-color: ${theme.colors.error.light};
+
   border-radius: ${theme.borderRadius.medium};
   margin-bottom: ${theme.spacing(3)};
 `;
@@ -45,11 +45,19 @@ const EditDoctorPage: React.FC = () => {
 
   useEffect(() => {
     const fetchDoctor = async () => {
-      if (!id) return;
+      if (!id || id === 'undefined') {
+        setError('Nieprawidłowe ID lekarza');
+        setIsLoading(false);
+        return;
+      }
 
       try {
         const doctorService = new DoctorService(supabase);
         const data = await doctorService.getDoctorById(id);
+        if (!data) {
+          setError('Nie znaleziono lekarza o podanym ID');
+          return;
+        }
         setDoctor(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Nie udało się załadować danych lekarza');

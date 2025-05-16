@@ -11,6 +11,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { DoctorService } from '../services/doctorService';
+import { SearchHistoryService } from '../services/searchHistoryService';
 import { supabase } from '../lib/supabase';
 import { analyzeHealthQueryWithSpecialties } from '../lib/openai';
 
@@ -103,8 +104,6 @@ const HomePage: React.FC = () => {
   const [searchResult, setSearchResult] = useState<SearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  //const doctorService = useMemo(() => new DoctorService(supabase), []);
 
   const handleSearch = async (query: string) => {
     if (!user) {
@@ -122,11 +121,8 @@ const HomePage: React.FC = () => {
         return;
       }
 
-
-      
       // Wyciągnięcie nazw specjalizacji
       const specialtyNames = result.specialtyMatches.map((specialty: { name: string }) => specialty.name);
-
 
       // Pobierz wszystkich lekarzy i filtruj po polu specialties (string)
       const doctorService = new DoctorService(supabase);
@@ -136,22 +132,31 @@ const HomePage: React.FC = () => {
         setError('Nie znaleziono lekarzy dla podanego zapytania.');
         return;
       }
-      // Zapisz wyniki wyszukiwania w tabeli 
 
-
-
-     
+      // Zapisz historię wyszukiwania
+      try {
+        const searchHistoryService = new SearchHistoryService(supabase);
+        await searchHistoryService.saveSearchHistory({
+          user_id: user.id,
+          query: query,
+          specialties: specialtyNames
+        });
+      } catch (error) {
+        console.error('Błąd podczas zapisywania historii wyszukiwań:', error);
+        // Nie przerywamy wyszukiwania w przypadku błędu zapisu historii
+      }
 
       const doctorsWithRelevance = doctors.map(doctor => {
         const bestMatch = result.specialtyMatches.find((specialty: { name: string; matchPercentage: number; reasoning?: string }) => 
           doctor.specialties && doctor.specialties.toLowerCase().includes(specialty.name.toLowerCase())
         );
+
         return {
           ...doctor,
           relevance_score: bestMatch ? bestMatch.matchPercentage : 0,
-          matchPercentage: bestMatch ? bestMatch.matchPercentage : undefined, // <-- dodajemy matchPercentage
+          matchPercentage: bestMatch ? bestMatch.matchPercentage : undefined,
           best_matching_specialty: bestMatch ? {
-            id: bestMatch.id,
+            id: bestMatch.name.toLowerCase().replace(/\s+/g, '-'),
             name: bestMatch.name,
             matchPercentage: bestMatch.matchPercentage,
             reasoning: bestMatch.reasoning

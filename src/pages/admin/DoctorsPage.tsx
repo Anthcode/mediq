@@ -49,7 +49,7 @@ const ErrorMessage = styled.div`
   color: ${theme.colors.error.main};
   text-align: center;
   padding: ${theme.spacing(2)};
-  background-color: ${theme.colors.error.light};
+
   border-radius: ${theme.borderRadius.medium};
   margin-bottom: ${theme.spacing(3)};
 `;

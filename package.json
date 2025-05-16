@@ -1,5 +1,5 @@
 {
-  "name": "medexpert-poc",
+  "name": "mediq",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -17,7 +17,7 @@
     "@types/express": "^5.0.1",
     "date-fns": "^3.3.1",
     "express": "^5.1.0",
-    "lucide-react": "^0.344.0",
+    "lucide-react": "^0.510.0",
     "openai": "^4.28.0",
     "react": "^18.3.1",
     "react-calendar": "^4.8.0",
