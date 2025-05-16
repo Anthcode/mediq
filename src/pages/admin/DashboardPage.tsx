@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Users, Tag, Brain, Clock } from 'lucide-react';
+import { Users, Tag,  Clock } from 'lucide-react';
 import { theme } from '../../styles/theme';
 import { Card } from '../../components/common/Card';
 import { AdminLayout } from '../../components/layout/AdminLayout';
@@ -64,7 +64,7 @@ const PageTitle = styled.h1`
 interface DashboardStats {
   doctorsCount: number;
   specialtiesCount: number;
-  expertiseAreasCount: number;
+
   recentSignupsCount: number;
 }
 
@@ -78,22 +78,24 @@ const AdminDashboardPage: React.FC = () => {
       try {
         const [
           { count: doctorsCount },
-          { count: specialtiesCount },
-          { count: expertiseAreasCount },
+          specialtiesResult,
+      
           { count: recentSignupsCount }
         ] = await Promise.all([
           supabase.from('doctors').select('*', { count: 'exact', head: true }),
-          supabase.from('specialties').select('*', { count: 'exact', head: true }),
-          supabase.from('expertise_areas').select('*', { count: 'exact', head: true }),
+          supabase.from('doctors').select('specialties').not('specialties', 'is', null),
+          
           supabase.from('profiles')
             .select('*', { count: 'exact', head: true })
             .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
         ]);
 
+        // Count unique specialties by creating a Set from the specialties array
+        const specialtiesCount = new Set(specialtiesResult.data?.map(d => d.specialties)).size;
+
         setStats({
           doctorsCount: doctorsCount || 0,
           specialtiesCount: specialtiesCount || 0,
-          expertiseAreasCount: expertiseAreasCount || 0,
           recentSignupsCount: recentSignupsCount || 0
         });
       } catch (err) {
@@ -148,7 +150,7 @@ const AdminDashboardPage: React.FC = () => {
           </StatContent>
         </StatCard>
 
-        <StatCard>
+        {/* <StatCard>
           <StatIcon>
             <Brain size={24} />
           </StatIcon>
@@ -156,7 +158,7 @@ const AdminDashboardPage: React.FC = () => {
             <StatValue>{stats?.expertiseAreasCount}</StatValue>
             <StatLabel>Obszarów ekspertyzy</StatLabel>
           </StatContent>
-        </StatCard>
+        </StatCard> */}
 
         <StatCard>
           <StatIcon>

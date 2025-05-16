@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { Users, UserCog, Tag, Brain, Home } from 'lucide-react';
+import { Users, UserCog, Tag, Home } from 'lucide-react';
 import { theme } from '../../styles/theme';
 import { Container } from '../common/Container';
 
@@ -119,13 +119,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
               <NavIcon><Tag size={18} /></NavIcon>
               <NavText>Specjalizacje</NavText>
             </NavItem>
-            <NavItem 
-              to="/admin/expertise-areas" 
-              $isActive={location.pathname.startsWith('/admin/expertise-areas')}
-            >
-              <NavIcon><Brain size={18} /></NavIcon>
-              <NavText>Obszary ekspertyzy</NavText>
-            </NavItem>
+
           </NavSection>
         </NavMenu>
       </Sidebar>
