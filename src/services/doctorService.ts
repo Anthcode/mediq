@@ -5,6 +5,7 @@ export class DoctorService {
   constructor(private supabase: SupabaseClient) {}
 
   async getDoctors(): Promise<DoctorDTO[]> {
+    // FIXME: W przyszłości dodać integrację z tabelą expertise_areas
     const { data, error } = await this.supabase
       .from('doctors')
       .select(`
@@ -34,6 +35,7 @@ export class DoctorService {
   }
 
   async getDoctorsBySpecialtyName(specialtyNames: string[]): Promise<DoctorDTO[]> {
+    // FIXME: W przyszłości dodać integrację z tabelą expertise_areas
     const { data, error } = await this.supabase
       .from('doctors')
       .select(`
@@ -60,8 +62,6 @@ export class DoctorService {
     }
     return data as DoctorDTO[];
   }
-
-
 
   async getDoctorById(id: string): Promise<DoctorDTO> {
     const { data, error } = await this.supabase
