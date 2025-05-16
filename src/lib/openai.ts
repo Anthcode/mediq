@@ -32,7 +32,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
   Objawy:
   "${query}"
 
-  Wybierz 3 najlepsze specjalizacje z poniższej listy:
+  Wybierz TYLKO 3 najlepsze specjalizacje z poniższej listy:
   "${specjalizationsList}"
   
   Dla każdej dostępnej specjalizacji musisz użyć dokładnie takiego samego id jak w podanej liście dostępnych specjalizacji.
