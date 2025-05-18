@@ -21,28 +21,28 @@ export const authenticateToken = async (
       return;
     }
 
-    const token = authHeader.split(' ')[1];
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    const token = authHeader.split(' ')[1];    const { data: { user }, error } = await supabase.auth.getUser(token);
 
     if (error || !user) {
       res.status(401).json({ error: 'Invalid token' });
       return;
     }
 
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+    // Pobieranie roli z tabeli user_roles zamiast profiles
+    const { data: roleData, error: roleError } = await supabase
+      .from('user_roles')
       .select('role')
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .single();
 
-    if (profileError || !profile) {
-      res.status(401).json({ error: 'User profile not found' });
+    if (roleError || !roleData) {
+      res.status(401).json({ error: 'User role not found' });
       return;
     }
 
     (req as AuthenticatedRequest).user = {
       id: user.id,
-      role: profile.role,
+      role: roleData.role,
       email: user.email!
     };
 

@@ -43,7 +43,6 @@ export const UserRoleManager: React.FC<UserRoleManagerProps> = ({
 }) => {
   const [selectedRole, setSelectedRole] = useState<UserRole>(currentRole);
   const [isUpdating, setIsUpdating] = useState(false);
-
   const handleRoleChange = async () => {
     if (selectedRole === currentRole) return;
 
@@ -52,10 +51,11 @@ export const UserRoleManager: React.FC<UserRoleManagerProps> = ({
 
     setIsUpdating(true);
     try {
+      // Korzystamy z tabeli user_roles zamiast profiles
       const { error } = await supabase
-        .from('profiles')
+        .from('user_roles')
         .update({ role: selectedRole })
-        .eq('id', userId);
+        .eq('user_id', userId);
 
       if (error) throw error;
 

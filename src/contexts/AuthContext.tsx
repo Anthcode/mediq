@@ -19,14 +19,23 @@ interface AuthProviderProps {
 
 const mapSupabaseUser = async (supabaseUser: SupabaseUser): Promise<User> => {
   try {
-    // Bez użycia tabeli profiles - tylko dane z auth.users
-    // To rozwiązanie tymczasowe, które pozwala ominąć problem rekursji
+    // Pobieramy rolę z tabeli user_roles zamiast profiles
+    const { data: userRole, error: roleError } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', supabaseUser.id)
+      .single();
+
+    if (roleError && roleError.code !== 'PGRST116') {
+      console.error('Błąd pobierania roli użytkownika:', roleError);
+    }
+    
     return {
       id: supabaseUser.id,
       email: supabaseUser.email || '',
       first_name: supabaseUser.user_metadata?.first_name || '',
       last_name: supabaseUser.user_metadata?.last_name || '',
-      role: (supabaseUser.user_metadata?.role as UserRole) || 'user'
+      role: (userRole?.role as UserRole) || 'user'
     };
   } catch (error) {
     console.error('Error mapping user:', error);

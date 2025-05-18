@@ -159,8 +159,7 @@ export const LoginPage: React.FC = () => {
       }));
     }
   };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -168,6 +167,7 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     
     try {
+      console.log('Próba logowania...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
@@ -176,7 +176,9 @@ export const LoginPage: React.FC = () => {
       if (error) {
         throw new Error(error.message);
       }
-        if (data.user) {
+      
+      if (data.user) {
+        console.log('Logowanie pomyślne, ustawianie danych użytkownika...');
         // Użyj danych z auth.users zamiast tabeli profiles
         // aby uniknąć problemów z rekursją w politykach RLS
         setUser({
@@ -336,8 +338,7 @@ export const SignupPage: React.FC = () => {
       }));
     }
   };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -356,31 +357,40 @@ export const SignupPage: React.FC = () => {
           }
         }
       });
-        if (error) {
+        
+      if (error) {
         throw new Error(error.message);
       }
+      
       if (data.user) {
         // 2. Utworzenie rekordu w tabeli profiles
+        console.log('Tworzenie profilu użytkownika...');
         const { error: profileError } = await supabase.rpc('create_user_profile', {
-          user_id: data.user.id,
-          user_email: formData.email,
-          user_first_name: formData.firstName,
-          user_last_name: formData.lastName
-    
+          p_user_id: data.user.id,
+          p_user_email: formData.email,
+          p_user_first_name: formData.firstName,
+          p_user_last_name: formData.lastName
         });
 
         if (profileError) {
           console.error('Błąd tworzenia profilu:', profileError);
           // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
-          //await supabase.auth.admin.deleteUser(data.user.id);
+          await supabase.auth.admin.deleteUser(data.user.id);
           throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
-        }        setUser({
+        }
+        
+        console.log('Profil użytkownika utworzony pomyślnie!');
+        
+        // 3. Ustaw dane użytkownika w kontekście
+        setUser({
           id: data.user.id,
           email: data.user.email || '',
           first_name: formData.firstName!,
           last_name: formData.lastName!,
           role: 'user'
         });
+        
+        // 4. Przekierowanie do strony głównej
         navigate('/');
       }
     } catch (error) {

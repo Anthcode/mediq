@@ -80,11 +80,11 @@ const AdminDashboardPage: React.FC = () => {
           { count: doctorsCount },
           specialtiesResult,
       
-          { count: recentSignupsCount }
-        ] = await Promise.all([
+          { count: recentSignupsCount }        ] = await Promise.all([
           supabase.from('doctors').select('*', { count: 'exact', head: true }),
           supabase.from('doctors').select('specialties').not('specialties', 'is', null),
           
+          // Używamy tabeli profiles do liczenia nowych rejestracji (nadal, bo to nie dotyczy ról)
           supabase.from('profiles')
             .select('*', { count: 'exact', head: true })
             .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
