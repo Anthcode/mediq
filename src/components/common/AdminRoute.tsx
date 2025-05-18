@@ -1,22 +1,17 @@
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { LoadingSpinner } from './LoadingSpinner';
+import { RoleBasedRoute } from './RoleBasedRoute';
 
 interface AdminRouteProps {
   children: React.ReactNode;
 }
 
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
-  const { user, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-  
-  if (!user || user.role !== 'administrator') {
-    return <Navigate to="/" replace />;
-  }
-  
-  return <>{children}</>;
+  return (
+    <RoleBasedRoute 
+      allowedRoles={['administrator']}
+      unauthorizedMessage="Dostęp tylko dla administratorów. Skontaktuj się z administratorem, jeśli uważasz, że to błąd."
+    >
+      {children}
+    </RoleBasedRoute>
+  );
 };
