@@ -50,6 +50,35 @@ export interface Database {
           updated_at?: string
         }
       }
+      profiles: {
+        Row: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          role: 'user' | 'administrator' | 'doctor' | 'moderator'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          email: string
+          first_name: string
+          last_name: string
+          role?: 'user' | 'administrator' | 'doctor' | 'moderator'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          first_name?: string
+          last_name?: string
+          role?: 'user' | 'administrator' | 'doctor' | 'moderator'
+          created_at?: string
+          updated_at?: string
+        }
+      }
       addresses: {
         Row: {
           id: string
@@ -158,6 +187,10 @@ export type TableName = keyof Tables
 export type Doctor = Tables['doctors']['Row']
 export type DoctorInsert = Tables['doctors']['Insert']
 export type DoctorUpdate = Tables['doctors']['Update']
+
+export type Profile = Tables['profiles']['Row']
+export type ProfileInsert = Tables['profiles']['Insert']
+export type ProfileUpdate = Tables['profiles']['Update']
 
 export type Address = Tables['addresses']['Row']
 export type AddressInsert = Tables['addresses']['Insert']

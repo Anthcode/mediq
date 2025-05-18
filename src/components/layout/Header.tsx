@@ -7,6 +7,7 @@ import { Container } from '../common/Container';
 import { theme } from '../../styles/theme';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { PermissionGate } from '../common/PermissionGate';
 
 const HeaderContainer = styled.header`
   background-color: ${theme.colors.background.default};
@@ -78,11 +79,11 @@ const Header: React.FC = () => {
           <Logo to="/">
             <LogoImage src="/logo.png" alt="Logo MedIQ" />
           </Logo>
-          
-          <Nav>
+            <Nav>
             {user ? (
               <>
-                {user.role === 'administrator' && (
+                {/* Admin Panel - tylko dla administratorów */}
+                <PermissionGate roles={['administrator']}>
                   <Button 
                     as={Link} 
                     to="/admin" 
@@ -90,9 +91,24 @@ const Header: React.FC = () => {
                     size="small"
                   >
                     <Settings size={16} style={{ marginRight: '4px' }} />
-                    Panel admina
+                    Panel administracyjny
                   </Button>
-                )}
+                </PermissionGate>
+
+                {/* Doctor Panel - dla lekarzy i adminów */}
+                <PermissionGate roles={['doctor', 'administrator']}>
+                  <Button 
+                    as={Link} 
+                    to="/doctor" 
+                    variant="outlined"
+                    size="small"
+                  >
+                    <User size={16} style={{ marginRight: '4px' }} />
+                    Panel lekarza
+                  </Button>
+                </PermissionGate>
+
+                {/* Profile - dla wszystkich zalogowanych */}
                 <Button 
                   as={Link} 
                   to="/profile" 
@@ -102,6 +118,7 @@ const Header: React.FC = () => {
                   <User size={16} style={{ marginRight: '4px' }} />
                   Profil
                 </Button>
+
                 <Button 
                   variant="text"
                   size="small"
@@ -125,10 +142,7 @@ const Header: React.FC = () => {
                   as={Link} 
                   to="/signup" 
                   variant="primary"
-                
                   size="small"
-
-
                 >
                   Zarejestruj się
                 </Button>

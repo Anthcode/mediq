@@ -14,7 +14,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import AdminDashboardPage from './pages/admin/DashboardPage';
 import DoctorsPage from './pages/admin/DoctorsPage';
 import EditDoctorPage from './pages/admin/EditDoctorPage';
-import { AdminRoute } from './components/common/AdminRoute';
+import { RoleBasedRoute, AdminRoute } from './components/common/RoleBasedRoute';
 import styled from 'styled-components';
 
 // Protected route component that redirects to login if user is not authenticated
@@ -86,6 +86,19 @@ const AppRoutes: React.FC = () => {
           <AuthRoute>
             <SignupPage />
           </AuthRoute>
+        } 
+      />
+        
+      {/* Doctor routes */}
+      <Route 
+        path="/doctor" 
+        element={
+          <RoleBasedRoute allowedRoles={['doctor', 'administrator']}>
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2>Panel lekarza</h2>
+              <p>Funkcjonalność panelu lekarza będzie dodana w przyszłości.</p>
+            </div>
+          </RoleBasedRoute>
         } 
       />
       

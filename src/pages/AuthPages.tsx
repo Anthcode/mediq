@@ -8,6 +8,7 @@ import { Button } from '../components/common/Button';
 import { Input, Label, FormGroup, InputError } from '../components/common/Input';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../hooks/useAuth';
+import { UserRole } from '../types/auth';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -175,24 +176,15 @@ export const LoginPage: React.FC = () => {
       if (error) {
         throw new Error(error.message);
       }
-      
-      if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
-        if (profileError) {
-          throw new Error('Nie udało się pobrać profilu użytkownika');
-        }
-
+        if (data.user) {
+        // Użyj danych z auth.users zamiast tabeli profiles
+        // aby uniknąć problemów z rekursją w politykach RLS
         setUser({
           id: data.user.id,
           email: data.user.email || '',
-          first_name: data.user.user_metadata.first_name,
-          last_name: data.user.user_metadata.last_name,
-          role: profile.role
+          first_name: data.user.user_metadata?.first_name || '',
+          last_name: data.user.user_metadata?.last_name || '',
+          role: (data.user.user_metadata?.role as UserRole) || 'user'
         });
         navigate('/');
       }
@@ -364,27 +356,25 @@ export const SignupPage: React.FC = () => {
           }
         }
       });
-      
-      if (error) {
+        if (error) {
         throw new Error(error.message);
       }
-        if (data.user) {
+      if (data.user) {
         // 2. Utworzenie rekordu w tabeli profiles
         const { error: profileError } = await supabase.rpc('create_user_profile', {
           user_id: data.user.id,
           user_email: formData.email,
           user_first_name: formData.firstName,
           user_last_name: formData.lastName
+    
         });
 
         if (profileError) {
           console.error('Błąd tworzenia profilu:', profileError);
           // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
-          await supabase.auth.admin.deleteUser(data.user.id);
+          //await supabase.auth.admin.deleteUser(data.user.id);
           throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
-        }
-
-        setUser({
+        }        setUser({
           id: data.user.id,
           email: data.user.email || '',
           first_name: formData.firstName!,
