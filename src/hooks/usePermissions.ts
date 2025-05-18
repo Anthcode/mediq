@@ -1,32 +1,91 @@
 import { useAuth } from './useAuth';
-import { ROLE_PERMISSIONS, UserRole, ROLE_HIERARCHY } from '../types/auth';
+import { ROLE_PERMISSIONS, UserRole, ROLE_HIERARCHY, Permission } from '../types/auth';
 
 export const usePermissions = () => {
   const { user, isLoading } = useAuth();
+
+  console.log('usePermissions hook state:', {
+    user: user ? {
+      ...user,
+      role: user.role,
+      roleType: typeof user.role,
+      roleValid: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role)
+    } : null,
+    isLoading,
+  });
 
   /**
    * Sprawdza czy użytkownik ma konkretną rolę
    */
   const hasRole = (role: UserRole): boolean => {
-    return user?.role === role;
+    const result = user?.role === role;
+    console.log('hasRole check:', { 
+      role, 
+      userRole: user?.role,
+      roleType: user?.role ? typeof user.role : 'no user',
+      result,
+      user: user ? {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      } : null
+    });
+    return result;
+  };
+
+  /**
+   * Sprawdza czy użytkownik ma którąkolwiek z podanych ról
+   */  const hasAnyRole = (roles: UserRole[]): boolean => {
+    if (!user?.role) {
+      console.log('hasAnyRole: No user or role');
+      return false;
+    }
+    
+    // Sprawdź czy rola użytkownika jest poprawna
+    if (!['administrator', 'doctor', 'moderator', 'user'].includes(user.role)) {
+      console.error('hasAnyRole: Invalid user role:', user.role);
+      return false;
+    }
+
+    const result = roles.includes(user.role);
+    console.log('hasAnyRole check:', { 
+      roles, 
+      userRole: user.role,
+      roleType: typeof user.role,
+      validRole: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role),
+      result,
+      rolesContainsAdministrator: roles.includes('administrator'),
+      isAdmin: user.role === 'administrator'
+    });
+    return result;
   };
 
   /**
    * Sprawdza czy użytkownik ma uprawnienie
    */
-  const hasPermission = (permission: string): boolean => {
-    if (!user) return false;
-    
-    const userPermissions: readonly string[] = ROLE_PERMISSIONS[user.role];
-    return userPermissions.includes('*') || 
-           userPermissions.includes(permission);
-  };
+  const hasPermission = (permission: Permission): boolean => {
+    if (!user?.role) {
+      console.log('hasPermission: No user or role');
+      return false;
+    }
 
-  /**
-   * Sprawdza czy użytkownik ma którąkolwiek z podanych ról
-   */
-  const hasAnyRole = (roles: UserRole[]): boolean => {
-    return user ? roles.includes(user.role) : false;
+    // Sprawdź czy rola użytkownika jest poprawna
+    if (!['administrator', 'doctor', 'moderator', 'user'].includes(user.role)) {
+      console.error('hasPermission: Invalid user role:', user.role);
+      return false;
+    }
+
+    const userPermissions: readonly Permission[] = ROLE_PERMISSIONS[user.role];
+    const result = userPermissions.includes('*' as Permission) || userPermissions.includes(permission);
+    
+    console.log('hasPermission check:', {
+      permission,
+      userRole: user.role,
+      userPermissions,
+      result
+    });
+    
+    return result;
   };
 
   /**
@@ -54,7 +113,6 @@ export const usePermissions = () => {
     return userLevel > targetLevel;
   };
 
-  // Convenience properties
   const isAdmin = hasRole('administrator');
   const isDoctor = hasRole('doctor');
   const isModerator = hasRole('moderator');
@@ -63,21 +121,20 @@ export const usePermissions = () => {
   return {
     user,
     isLoading,
-    // Methods
     hasRole,
     hasPermission,
     hasAnyRole,
     hasMinimumRole,
     canManageUser,
-    // Convenience flags
     isAdmin,
     isDoctor,
     isModerator,
     isUser,
     // Advanced checks
-    canViewAdminPanel: hasAnyRole(['administrator', 'moderator']),
-    canManageDoctors: hasRole('administrator'),
-    canViewDoctorPanel: hasAnyRole(['administrator', 'doctor']),
-    canModerateContent: hasAnyRole(['administrator', 'moderator']),
+    canManageUsers: isAdmin || isModerator,
+    canViewAdminPanel: isAdmin || isModerator,
+    canManageDoctors: isAdmin,
+    canViewDoctorPanel: isAdmin || isDoctor,
+    canModerateContent: isAdmin || isModerator,
   };
 };

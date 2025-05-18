@@ -50,27 +50,53 @@ const Nav = styled.nav`
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
-  
+  const { user, isLoading } = useAuth();
+    console.log('Header rendering:', { 
+    isLoading,
+    user: user ? {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      roleType: typeof user.role
+    } : "null",
+    userRole: user?.role,
+    isAuthenticated: !!user 
+  });
+
   const handleSignOut = async () => {
     try {
-      // Najpierw wyczyść stan użytkownika
-      setUser(null);
-      // Następnie wyczyść dane użytkownika z localStorage
-      localStorage.removeItem('mediq_auth');
-      // Możesz również wyczyścić inne dane, jeśli są przechowywane w localStorage
+      // Pozwól onAuthStateChange obsłużyć zmianę stanu użytkownika dla spójności
+      // setUser(null); 
+      // Supabase zarządza własnym przechowywaniem sesji
+      // localStorage.removeItem('mediq_auth');
 
-      
-      // Następnie wyloguj z Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Na końcu przekieruj na stronę główną
+      // Przekieruj po pomyślnym wylogowaniu
       navigate('/', { replace: true });
     } catch (error) {
       console.error('Błąd podczas wylogowywania:', error);
     }
   };
+
+  // Jeśli stan autentykacji wciąż się ładuje, pokaż uproszczony nagłówek
+  // lub dedykowany komponent ładowania dla nagłówka.
+  if (isLoading) {
+    return (
+      <HeaderContainer>
+        <Container $maxWidth="lg">
+          <HeaderContent>
+            <Logo to="/">
+              <LogoImage src="/logo.png" alt="Logo MedIQ" />
+            </Logo>
+            {/* Można dodać mały spinner lub placeholder dla przycisków nawigacji */}
+            <Nav /> 
+          </HeaderContent>
+        </Container>
+      </HeaderContainer>
+    );
+  }
   
   return (
     <HeaderContainer>

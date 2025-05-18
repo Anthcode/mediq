@@ -7,8 +7,6 @@ import { Container } from '../components/common/Container';
 import { Button } from '../components/common/Button';
 import { Input, Label, FormGroup, InputError } from '../components/common/Input';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../hooks/useAuth';
-import { UserRole } from '../types/auth';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -117,7 +115,7 @@ interface AuthError {
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  // Nie potrzebujemy setUser - obsłużymy to przez onAuthStateChange w AuthContext
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: ''
@@ -176,18 +174,10 @@ export const LoginPage: React.FC = () => {
       if (error) {
         throw new Error(error.message);
       }
-      
-      if (data.user) {
-        console.log('Logowanie pomyślne, ustawianie danych użytkownika...');
-        // Użyj danych z auth.users zamiast tabeli profiles
-        // aby uniknąć problemów z rekursją w politykach RLS
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          first_name: data.user.user_metadata?.first_name || '',
-          last_name: data.user.user_metadata?.last_name || '',
-          role: (data.user.user_metadata?.role as UserRole) || 'user'
-        });
+        if (data.user) {
+        console.log('Logowanie pomyślne, przekierowywanie...');
+        // Nie ustawiamy ręcznie użytkownika - obsługa autoryzacji i pobierania roli 
+        // jest obsługiwana przez AuthContext poprzez onAuthStateChange
         navigate('/');
       }
     } catch (error) {
@@ -286,7 +276,6 @@ export const LoginPage: React.FC = () => {
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: '',
@@ -377,20 +366,11 @@ export const SignupPage: React.FC = () => {
           // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
           await supabase.auth.admin.deleteUser(data.user.id);
           throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
-        }
-        
+        }        
         console.log('Profil użytkownika utworzony pomyślnie!');
         
-        // 3. Ustaw dane użytkownika w kontekście
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          first_name: formData.firstName!,
-          last_name: formData.lastName!,
-          role: 'user'
-        });
-        
-        // 4. Przekierowanie do strony głównej
+        // Nie musimy ręcznie ustawiać użytkownika - robi to AuthContext
+        // Przekierowanie do strony głównej
         navigate('/');
       }
     } catch (error) {
