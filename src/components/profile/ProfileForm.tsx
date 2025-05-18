@@ -30,11 +30,10 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
   profile,
   onSubmit,
   isLoading = false
-}) => {
-  const [formData, setFormData] = useState({
+}) => {  const [formData, setFormData] = useState({
     first_name: profile.first_name,
     last_name: profile.last_name,
-    role: profile.role
+    // Usunięto pole role, które było wcześniej częścią profile
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -83,16 +82,11 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
 
   return (
     <FormContainer onSubmit={handleSubmit}>
-
-
-
       <FormGroup>
         <Label htmlFor="role">Rola</Label>
         <Input
           id="role"
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
+          name="role"          value={profile.role}
           disabled
         />
       </FormGroup>
