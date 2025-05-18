@@ -1,13 +1,13 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { usePermissions } from '../../hooks/usePermissions';
-import { UserRole } from '../../types/auth';
+import { UserRole, Permission } from '../../types/auth';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface RoleBasedRouteProps {
   children: React.ReactNode;
   allowedRoles?: UserRole[];
-  permissions?: string[];
+  permissions?: Permission[];
   requireAll?: boolean;
   fallbackPath?: string;
   unauthorizedMessage?: string;
@@ -24,6 +24,21 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   const { user, isLoading, hasAnyRole, hasPermission } = usePermissions();
   const location = useLocation();
   
+  // Debug logs
+  console.log('RoleBasedRoute rendering:', {
+    allowedRoles,
+    currentUserRole: user?.role,
+    isLoading,
+    path: location.pathname,
+    roleType: user?.role ? typeof user.role : 'no user',
+    userDetails: user ? {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      roleValid: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role)
+    } : 'not authenticated'
+  });
+  
   // Loading state
   if (isLoading) {
     return <LoadingSpinner $fullpage />;
@@ -37,9 +52,17 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
       state={{ from: location, message: 'Musisz być zalogowany aby uzyskać dostęp' }} 
     />;
   }
-  
-  // Check roles if provided
+    // Check roles if provided
   if (allowedRoles.length > 0 && !hasAnyRole(allowedRoles)) {
+    console.log('RoleBasedRoute: Access denied due to role mismatch', {
+      allowedRoles,
+      userRole: user?.role,
+      path: location.pathname,
+      roleType: typeof user?.role,
+      isAdmin: user?.role === 'administrator',
+      rolesContainsAdmin: allowedRoles.includes('administrator')
+    });
+    
     return <Navigate 
       to={fallbackPath} 
       replace 
@@ -48,14 +71,20 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
       }} 
     />;
   }
-  
-  // Check permissions if provided
+    // Check permissions if provided
   if (permissions.length > 0) {
     const hasRequiredPermissions = requireAll
       ? permissions.every(permission => hasPermission(permission))
       : permissions.some(permission => hasPermission(permission));
     
     if (!hasRequiredPermissions) {
+      console.log('RoleBasedRoute: Access denied due to permission mismatch', {
+        permissions,
+        userRole: user?.role,
+        path: location.pathname,
+        requireAll
+      });
+      
       return <Navigate 
         to={fallbackPath} 
         replace 
@@ -65,6 +94,11 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
       />;
     }
   }
+    console.log('RoleBasedRoute: Access granted', {
+    allowedRoles,
+    userRole: user?.role,
+    path: location.pathname
+  });
   
   return <>{children}</>;
 };
