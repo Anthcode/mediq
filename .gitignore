@@ -12,6 +12,18 @@ dist
 dist-ssr
 *.local
 
+# Additional directories
+coverage/
+cache/
+build/
+
+# Temporary files and cache
+.eslintcache
+
+# Windows system files
+Thumbs.db
+Desktop.ini
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -23,3 +35,4 @@ dist-ssr
 *.sln
 *.sw?
 .env
+cypress.env.json

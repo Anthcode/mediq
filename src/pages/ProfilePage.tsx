@@ -7,6 +7,7 @@ import { Card } from "../components/common/Card";
 import { TabList, Tab } from "../components/common/TabList";
 import { TabPanel } from "../components/common/TabPanel";
 import { LoadingSpinner } from "../components/common/LoadingSpinner";
+import { Button } from "../components/common/Button";
 import { ProfileForm } from "../components/profile/ProfileForm";
 import SearchHistoryList from "../components/profile/SearchHistoryList";
 import { useAuth } from "../hooks/useAuth";
@@ -42,15 +43,17 @@ export const ProfilePage: React.FC = () => {
   const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-
   const loadProfile = useCallback(async () => {
     if (!user) return;
 
     const userService = new UserService(supabase);
     try {
+      console.log('Próba pobrania profilu dla użytkownika:', user.id);
       const data = await userService.getCurrentUserProfile();
+      console.log('Pobrano profil użytkownika:', data);
       setProfile(data);
     } catch (err) {
+      console.error('Błąd podczas ładowania profilu:', err);
       setError(
         err instanceof Error ? err.message : "Nie udało się załadować profilu"
       );
@@ -73,11 +76,23 @@ export const ProfilePage: React.FC = () => {
       setIsHistoryLoading(false);
     }
   }, [user]);
-
   useEffect(() => {
     if (user) {
-      loadProfile();
-      loadSearchHistory();
+      // Najpierw upewniamy się, że profil i rola użytkownika istnieją
+      const userService = new UserService(supabase);
+      console.log('Rozpoczynam sprawdzanie i naprawę profilu użytkownika...');
+      userService.ensureUserProfileExists(user.id)
+        .then(() => {
+          console.log('Profil użytkownika został sprawdzony/naprawiony, ładowanie danych...');
+          loadProfile();
+          loadSearchHistory();
+        })
+        .catch(err => {
+          console.error("Błąd podczas sprawdzania/naprawiania profilu:", err);
+          setError('Nie udało się zainicjować profilu użytkownika. Odśwież stronę lub skontaktuj się z administratorem.');
+          setIsLoading(false);
+          setIsHistoryLoading(false);
+        });
     } else {
       setIsLoading(false);
       setIsHistoryLoading(false);
@@ -131,13 +146,29 @@ export const ProfilePage: React.FC = () => {
   const handleSearchFromHistory = (query: string) => {
     navigate("/", { state: { searchQuery: query } });
   };
-
   if (isLoading) {
     return (
       <ProfileContainer>
         <PageTitle>Profil</PageTitle>
         <Card>
           <LoadingSpinner />
+        </Card>
+      </ProfileContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <ProfileContainer>
+        <PageTitle>Profil</PageTitle>
+        <Card>
+          <ErrorText>{error}</ErrorText>
+          <Button 
+            onClick={() => window.location.reload()} 
+            style={{ margin: '20px auto', display: 'block' }}
+          >
+            Spróbuj ponownie
+          </Button>
         </Card>
       </ProfileContainer>
     );

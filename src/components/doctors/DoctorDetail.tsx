@@ -140,14 +140,17 @@ interface DoctorDetailProps {
 
 const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
   const primaryAddress = doctor.addresses?.[0];
-  
+  // Zabezpieczenie przed brakiem danych imienia/nazwiska
+  const firstName = doctor.first_name || '';
+  const lastName = doctor.last_name || '';
+
   return (
     <DetailContainer>
       <InfoSection>
         <ProfileHeader>
-          <Avatar src={doctor.profile_image_url || undefined} alt={`${doctor.first_name} ${doctor.last_name}`} />
+          <Avatar src={doctor.profile_image_url || undefined} alt={`${firstName} ${lastName}`} />
           <HeaderInfo>
-            <DoctorName>{`${doctor.first_name} ${doctor.last_name}`}</DoctorName>
+            <DoctorName>{`${firstName} ${lastName}`.trim() || 'Lekarz'}</DoctorName>
             <DoctorSpecialty>{doctor.specialties}</DoctorSpecialty>
             <RatingContainer>
               <Star size={20} color={theme.colors.warning.main} />

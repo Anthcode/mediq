@@ -1,0 +1,77 @@
+[
+  {
+    "id": 1,
+    "first_name": "Jan",
+    "last_name": "Kowalski",
+    "specialty": "Kardiolog",
+    "avatar_url": "https://example.com/avatar1.jpg",
+    "bio": "Doświadczony kardiolog z wieloletnim stażem w leczeniu chorób serca.",
+    "address": {
+      "city": "Warszawa",
+      "street": "ul. Marszałkowska 1",
+      "postal_code": "00-001"
+    },
+    "phone": "+48 123 456 789",
+    "email": "jan.kowalski@example.com"
+  },
+  {
+    "id": 2,
+    "first_name": "Anna",
+    "last_name": "Nowak",
+    "specialty": "Neurolog",
+    "avatar_url": "https://example.com/avatar2.jpg",
+    "bio": "Specjalistka w diagnozowaniu i leczeniu chorób układu nerwowego.",
+    "address": {
+      "city": "Kraków",
+      "street": "ul. Floriańska 2",
+      "postal_code": "30-001"
+    },
+    "phone": "+48 987 654 321",
+    "email": "anna.nowak@example.com"
+  },
+  {
+    "id": 3,
+    "first_name": "Tomasz",
+    "last_name": "Wiśniewski",
+    "specialty": "Ortopeda",
+    "avatar_url": "https://example.com/avatar3.jpg",
+    "bio": "Specjalista w leczeniu urazów i chorób układu kostno-stawowego.",
+    "address": {
+      "city": "Gdańsk",
+      "street": "ul. Długa 3",
+      "postal_code": "80-001"
+    },
+    "phone": "+48 555 123 456",
+    "email": "tomasz.wisniewski@example.com"
+  },
+  {
+    "id": 4,
+    "first_name": "Maria",
+    "last_name": "Kowalczyk",
+    "specialty": "Pediatra",
+    "avatar_url": "https://example.com/avatar4.jpg",
+    "bio": "Doświadczona pediatra z wieloletnim stażem w leczeniu dzieci.",
+    "address": {
+      "city": "Poznań",
+      "street": "ul. Wielka 4",
+      "postal_code": "60-001"
+    },
+    "phone": "+48 666 789 012",
+    "email": "maria.kowalczyk@example.com"
+  },
+  {
+    "id": 5,
+    "first_name": "Piotr",
+    "last_name": "Lewandowski",
+    "specialty": "Dermatolog",
+    "avatar_url": "https://example.com/avatar5.jpg",
+    "bio": "Specjalista w diagnozowaniu i leczeniu chorób skóry.",
+    "address": {
+      "city": "Wrocław",
+      "street": "ul. Świdnicka 5",
+      "postal_code": "50-001"
+    },
+    "phone": "+48 777 345 678",
+    "email": "piotr.lewandowski@example.com"
+  }
+]

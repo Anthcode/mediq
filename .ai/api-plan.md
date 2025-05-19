@@ -1,319 +1,152 @@
-# REST API Plan
+# Plan API Aplikacji MedIQ
 
-This document outlines the comprehensive REST API design based on the provided database schema, product requirements (PRD), and technical stack.
+## 1. Wprowadzenie
 
-## 1. Resources
+Niniejszy dokument opisuje plan API dla aplikacji MedIQ. API jest budowane z wykorzystaniem Supabase, w tym jego mechanizmów autentykacji, bazy danych PostgreSQL z RESTful API oraz Supabase Edge Functions dla logiki niestandardowej (np. integracji z OpenAI).
 
-- **Users**: Managed by Supabase Auth (read-only from our API perspective)
-- **Profiles**: Extended user information (1:1 with users)
-- **Doctors**: Main resource for physicians’ data
-- **Addresses**: Addresses linked to doctors (1:N)
-- **Specialties**: List of medical specialties
-- **Doctors_Specialties**: Many-to-many relation between doctors and specialties
-- **Expertise_Areas**: Administrator-defined areas of expertise
-- **Doctors_Expertise_Areas**: Many-to-many relation between doctors and expertise areas
-- **Ratings**: Patient ratings for doctors
-- **Search_History**: Storage of users’ search queries and AI analysis results
+## 2. Konwencje Ogólne
 
-## 2. Endpoints
+- **Base URL:** API Supabase (np. `https://<project_ref>.supabase.co`)
+- **Autentykacja:** JWT (Bearer Token) zarządzane przez Supabase Auth.
+- **Format Danych:** JSON.
+- **Obsługa Błędów:** Standardowe kody statusu HTTP (np. 200, 201, 400, 401, 403, 404, 500).
+- **Bezpieczeństwo:** Polityki Row Level Security (RLS) w Supabase będą stosowane do ochrony dostępu do danych.
+- **Wersjonowanie:** Domyślnie `/rest/v1/` dla Supabase REST API, `/auth/v1/` dla Auth, `/functions/v1/` dla Edge Functions.
 
-### 2.1. Doctors (CRUD)
+## 3. Modele Danych (Główne DTO)
 
-- **GET /doctors**  
-  _Description_: Retrieve a paginated list of doctors with optional filters and sorting (e.g., by experience, specialty, location, and match score).  
-  _Query Parameters_:  
-  - `page`: Page number  
-  - `limit`: Number of items per page  
-  - `sort`: Field to sort (e.g., experience, match_score)  
-  - `filter`: JSON object or query string to filter by specialty, city, active status, etc.  
-  _Response JSON Example_:
+- `UserDTO`: Dane profilu użytkownika.
+- `DoctorDTO`: Pełne dane lekarza, w tym specjalizacje, obszary ekspertyzy, adresy.
+- `CreateDoctorCommand`: Dane wejściowe do tworzenia nowego lekarza.
+- `HealthQueryAnalysisDTO`: Wynik analizy zapytania zdrowotnego przez AI.
+- `SpecialtyMatchDTO`: Informacje o dopasowanej specjalizacji.
 
-  ```json
-  {
-    "data": [
-      {
-        "id": "uuid",
-        "first_name": "John",
-        "last_name": "Doe",
-        "experience": 10,
-        "education": "Medical School",
-        "bio": "Experienced physician...",
-        "profile_image_url": "...",
-        "active": true,
-        "created_at": "2025-05-02T12:00:00Z",
-        "updated_at": "2025-05-02T12:00:00Z",
-        "specialties": [ { "id": "uuid", "name": "Cardiology" } ],
-        "expertise_areas": [ { "id": "uuid", "name": "Heart Disease" } ],
-        "addresses": [ { "street": "...", "city": "City", "state": "State" } ]
-      }
-    ],
-    "pagination": {
-      "page": 1,
-      "limit": 10,
-      "total": 100
+## 4. Punkty Końcowe API
+
+### 4.1. Autentykacja (Supabase Auth)
+
+Zarządzane głównie przez bibliotekę kliencką Supabase. Standardowe punkty końcowe Supabase Auth:
+
+- **Rejestracja Użytkownika**
+  - `POST /auth/v1/signup`
+  - Request Body: `{ email, password, data: { first_name, last_name (opcjonalnie) } }`
+  - Response: Sesja użytkownika lub błąd.
+- **Logowanie Użytkownika**
+  - `POST /auth/v1/token?grant_type=password`
+  - Request Body: `{ email, password }`
+  - Response: Sesja użytkownika (zawiera JWT).
+- **Wylogowanie Użytkownika**
+  - `POST /auth/v1/logout` (wymaga JWT)
+  - Response: `204 No Content`.
+- **Pobranie Danych Użytkownika**
+  - `GET /auth/v1/user` (wymaga JWT)
+  - Response: Dane zalogowanego użytkownika.
+
+### 4.2. Profile Użytkowników
+
+- **Pobierz profil bieżącego użytkownika**
+  - `GET /rest/v1/profiles?select=*&id=eq.current_user_id` (RLS zapewni, że użytkownik pobiera tylko swój profil)
+  - Response: `UserDTO`.
+- **Aktualizuj profil bieżącego użytkownika**
+  - `PATCH /rest/v1/profiles?id=eq.current_user_id` (RLS)
+  - Request Body: Częściowy `UserDTO` (np. `{ first_name, last_name }`).
+  - Response: Zaktualizowany `UserDTO`.
+- **Pobierz historię wyszukiwań użytkownika**
+  - `GET /rest/v1/search_history?select=*&user_id=eq.current_user_id&order=created_at.desc` (RLS)
+  - Response: Tablica obiektów historii wyszukiwania.
+- **Dodaj do historii wyszukiwań**
+  - `POST /rest/v1/search_history` (RLS, `user_id` może być automatycznie ustawione przez RLS/trigger)
+  - Request Body: `{ query_text, symptoms_identified: [], suggested_specialties: [] }`
+  - Response: Utworzony wpis historii.
+- **Wyczyść historię wyszukiwań użytkownika**
+  - `DELETE /rest/v1/search_history?user_id=eq.current_user_id` (RLS)
+  - Response: `204 No Content` lub liczba usuniętych wpisów.
+- **Pobierz ulubionych lekarzy użytkownika**
+  - `GET /rest/v1/favorite_doctors?select=*,doctors(*)&user_id=eq.current_user_id` (RLS)
+  - Response: Tablica ulubionych lekarzy z ich danymi.
+- **Dodaj lekarza do ulubionych**
+  - `POST /rest/v1/favorite_doctors` (RLS)
+  - Request Body: `{ doctor_id }` (`user_id` z JWT/RLS).
+  - Response: Utworzony wpis ulubionego lekarza.
+- **Usuń lekarza z ulubionych**
+  - `DELETE /rest/v1/favorite_doctors?user_id=eq.current_user_id&doctor_id=eq.{doctorId}` (RLS)
+  - Response: `204 No Content`.
+
+### 4.3. Lekarze (CRUD)
+
+Dostęp do niektórych operacji (POST, PATCH, DELETE) może być ograniczony do administratorów przez RLS.
+
+- **Pobierz listę lekarzy**
+  - `GET /rest/v1/doctors?select=*,specialties(name),expertise_areas(name),addresses(*)`
+  - Parametry Query: Możliwość filtrowania (np. `specialties.name=eq.Kardiolog`), sortowania, paginacji.
+  - Response: Tablica `DoctorDTO`.
+- **Pobierz szczegóły lekarza**
+  - `GET /rest/v1/doctors?select=*,specialties(name),expertise_areas(name),addresses(*)&id=eq.{doctorId}`
+  - Response: Pojedynczy `DoctorDTO`.
+- **Utwórz nowego lekarza (Admin)**
+  - `POST /rest/v1/doctors` (Chronione RLS dla adminów)
+  - Request Body: `CreateDoctorCommand` (zgodnie z [.ai/view-implementation-plan.md](.ai/view-implementation-plan.md), zawiera `first_name`, `last_name`, `specialties` (tablica UUID), `expertise_areas` (tablica UUID), `addresses` itp.).
+  - Response: `201 Created`, utworzony `DoctorDTO`.
+- **Aktualizuj dane lekarza (Admin/Lekarz)**
+  - `PATCH /rest/v1/doctors?id=eq.{doctorId}` (Chronione RLS)
+  - Request Body: Częściowy `DoctorDTO`.
+  - Response: Zaktualizowany `DoctorDTO`.
+- **Usuń lekarza (Admin)**
+  - `DELETE /rest/v1/doctors?id=eq.{doctorId}` (Chronione RLS dla adminów)
+  - Response: `204 No Content`.
+
+### 4.4. Analiza Symptomów AI (Supabase Edge Function)
+
+- **Analizuj symptomy i zasugeruj specjalizacje**
+  - `POST /functions/v1/analyze-symptoms` (Wymaga JWT)
+  - Request Body:
+    ```json
+    {
+      "query": "Tekst zapytania użytkownika opisujący symptomy",
+      "available_specialties": [ // Opcjonalnie, lista dostępnych specjalizacji do rozważenia
+        { "id": "uuid1", "name": "Kardiolog" },
+        { "id": "uuid2", "name": "Neurolog" }
+      ]
     }
-  }
-  ```
+    ```
+  - Response: `HealthQueryAnalysisDTO`
+    ```json
+    {
+      "symptoms": ["ból głowy", "zawroty głowy"],
+      "specialtyMatches": [
+        { "id": "uuid", "name": "Neurolog", "matchPercentage": 90, "reasoning": "Uzasadnienie dopasowania..." },
+        // ... inne dopasowane specjalizacje (max 3-6)
+      ]
+    }
+    ```
 
-  _Success Codes_: 200 OK  
-  _Error Codes_: 400 Bad Request, 500 Internal Server Error
+### 4.5. Dane Pomocnicze (Słowniki)
 
-- **GET /doctors/{doctorId}**  
-  _Description_: Retrieve detailed information of a specific doctor.  
-  _URL Parameter_: `doctorId` - UUID of the doctor.  
-  _Response JSON Example_:
+- **Pobierz listę specjalizacji**
+  - `GET /rest/v1/specializations?select=id,name`
+  - Response: Tablica obiektów specjalizacji.
+- **Pobierz listę obszarów ekspertyzy**
+  - `GET /rest/v1/expertise_areas?select=id,name`
+  - Response: Tablica obiektów obszarów ekspertyzy.
 
-  ```json
-  {
-    "id": "uuid",
-    "first_name": "John",
-    "last_name": "Doe",
-    "experience": 10,
-    "education": "Medical School",
-    "bio": "Experienced physician...",
-    "profile_image_url": "...",
-    "active": true,
-    "created_at": "2025-05-02T12:00:00Z",
-    "updated_at": "2025-05-02T12:00:00Z",
-    "specialties": [ { "id": "uuid", "name": "Cardiology" } ],
-    "expertise_areas": [ { "id": "uuid", "name": "Heart Disease" } ],
-    "addresses": [ { "street": "...", "city": "City", "state": "State", "postal_code": "12345", "country": "Country" } ]
-  }
-  ```
+## 5. Względy Bezpieczeństwa
 
-  _Success Codes_: 200 OK  
-  _Error Codes_: 404 Not Found
+- Wszystkie żądania modyfikujące dane lub dostęp do danych wrażliwych muszą być uwierzytelnione za pomocą JWT.
+- Polityki RLS w Supabase będą intensywnie wykorzystywane do egzekwowania uprawnień na poziomie wierszy.
+- Walidacja danych wejściowych będzie przeprowadzana zarówno na froncie (np. Zod), jak i potencjalnie w Supabase Edge Functions lub za pomocą constraintów bazy danych.
+- Klucze API (np. OpenAI) będą przechowywane bezpiecznie jako sekrety w Supabase.
 
-- **POST /doctors**  
-  _Description_: Create a new doctor profile (admin only).  
-  _Request Body JSON Example_:
+## 6. Obsługa Błędów
 
-  ```json
-  {
-    "first_name": "Alice",
-    "last_name": "Smith",
-    "experience": 8,
-    "education": "University Medical Center",
-    "bio": "Specialist in internal medicine...",
-    "profile_image_url": "http://...",
-    "active": true,
-    "specialties": [ "uuid-of-specialty" ],
-    "expertise_areas": [ "uuid-of-expertise-area" ],
-    "addresses": [
-      {
-        "street": "123 Main St",
-        "city": "City",
-        "state": "State",
-        "postal_code": "12345",
-        "country": "Country"
-      }
-    ]
-  }
-  ```
+Standardowe kody HTTP będą używane do sygnalizowania statusu operacji. Odpowiedzi błędów (4xx, 5xx) powinny zawierać czytelny komunikat błędu w ciele JSON, np.:
 
-  _Success Codes_: 201 Created  
-  _Error Codes_: 400 Bad Request, 401 Unauthorized, 500 Internal Server Error
+```json
+{
+  "error": "opis błędu",
+  "details": "dodatkowe szczegóły (opcjonalnie)"
+}
+```
 
-- **PUT /doctors/{doctorId}**  
-  _Description_: Update an existing doctor profile (admin and owner profiles).  
-  _URL Parameter_: `doctorId`  
-  _Request Body_: Same structure as POST with fields to update.  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 400 Bad Request, 401 Unauthorized, 404 Not Found
+## 7. Dalszy Rozwój
 
-- **DELETE /doctors/{doctorId}**  
-  _Description_: Remove a doctor profile (admin only).  
-  _URL Parameter_: `doctorId`  
-  _Success Codes_: 200 OK with confirmation message  
-  _Error Codes_: 401 Unauthorized, 404 Not Found
-
-### 2.2. Profiles
-
-- **GET /profiles/{userId}**  
-  _Description_: Retrieve user profile details.  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 404 Not Found, 401 Unauthorized
-
-- **PUT /profiles/{userId}**  
-  _Description_: Update user profile information.  
-  _Request Body Example_:
-
-  ```json
-  {
-    "first_name": "Alice",
-    "last_name": "Smith",
-    "role": "patient"
-  }
-  ```
-
-  _Success Codes_: 200 OK  
-  _Error Codes_: 400 Bad Request, 401 Unauthorized
-
-### 2.3. Ratings
-
-- **GET /doctors/{doctorId}/ratings**  
-  _Description_: Retrieve list of ratings for the specified doctor.  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 404 Not Found
-  
-- **POST /doctors/{doctorId}/ratings**  
-  _Description_: Create a rating for a doctor from a logged in user.  
-  _Request Body Example_:
-
-  ```json
-  {
-    "user_id": "uuid",
-    "rating": 4,
-    "comment": "Great service"
-  }
-  ```
-
-  _Validations_: Rating must be between 1 and 5.  
-  _Success Codes_: 201 Created  
-  _Error Codes_: 400 Bad Request, 401 Unauthorized
-
-### 2.4. Search and AI Analysis
-
-- **POST /ai/analyze**  
-  _Description_: Submit a natural language description of symptoms to trigger AI analysis (integrates with OpenAI API).  
-  _Request Body Example_:
-
-  ```json
-  {
-    "query": "I have been experiencing chest pains and shortness of breath."
-  }
-  ```
-
-  _Response JSON Example_:
-
-  ```json
-  {
-    "identified_symptoms": ["chest pain", "shortness of breath"],
-    "suggested_specialties": ["Cardiology", "Pulmonology"],
-    "doctors_match": [
-      { "doctor_id": "uuid", "match_percentage": 90 }
-    ],
-    "analysis_id": "uuid"
-  }
-  ```
-
-  _Notes_: Implements caching and token optimization strategies.  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 400 Bad Request, 429 Too Many Requests, 500 Internal Server Error
-
-- **GET /search**  
-  _Description_: Search for doctors based on the AI analysis results or manual filters. Can merge results from AI analysis with standard filters.  
-  _Query Parameters_:  
-  - `query` (optional): Natural language query  
-  - Additional filter parameters (specialty, city, experience, etc.)  
-  - `page` & `limit` for pagination  
-  _Response_: Similar structure as GET /doctors  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 400 Bad Request, 404 Not Found
-
-- **GET /search/history**  
-  _Description_: Retrieve search history for the authenticated user.  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 401 Unauthorized
-
-- **POST /search/history**  
-  _Description_: Save a new search entry, including the analyzed query and suggested specialties (only for logged in users).  
-  _Request Body Example_:
-
-  ```json
-  {
-    "query": "headache and nausea",
-    "specialties": ["Neurology", "General Practice"]
-  }
-  ```
-
-  _Success Codes_: 201 Created  
-  _Error Codes_: 400 Bad Request, 401 Unauthorized
-
-### 2.5. Authentication Endpoints
-
-*(Note: While Supabase handles major authentication operations, the API may offer the following proxy endpoints for integration purposes.)_
-
-- **POST /auth/register**  
-  _Description_: Register a new user using Supabase Auth API.  
-  _Request Body Example_:
-
-  ```json
-  {
-    "first_name": "Alice",
-    "last_name": "Smith",
-    "email": "alice@example.com",
-    "password": "securePassword123"
-  }
-  ```
-
-  _Success Codes_: 201 Created  
-  _Error Codes_: 400 Bad Request, 409 Conflict
-
-- **POST /auth/login**  
-  _Description_: Log in a user and return a JWT token.  
-  _Request Body Example_:
-
-  ```json
-  {
-    "email": "alice@example.com",
-    "password": "securePassword123"
-  }
-  ```
-
-  _Response Example_:
-
-  ```json
-  {
-    "token": "jwt-token",
-    "user": { "id": "uuid", "email": "alice@example.com" }
-  }
-  ```
-
-  _Success Codes_: 200 OK  
-  _Error Codes_: 400 Bad Request, 401 Unauthorized
-
-- **POST /auth/logout**  
-  _Description_: Log out the user by invalidating the current token/session.  
-  _Success Codes_: 200 OK  
-  _Error Codes_: 401 Unauthorized
-
-## 3. Authentication and Authorization
-
-- **Mechanism**: JSON Web Tokens (JWT) issued by Supabase Auth.
-- **Implementation Details**:
-  - Protected endpoints (e.g., profile update, doctor creation, rating submission) require a valid JWT passed in the Authorization header as `Bearer <token>`.
-  - Role-based access control (e.g., admin-only access for creating/deleting doctors) enforced via middleware.
-  - Row Level Security (RLS) policies in the database (as specified in the DB Plan) will complement the API’s authorization logic.
-
-## 4. Validation and Business Logic
-
-### Validation Rules
-
-- **Doctors**:  
-  - Mandatory fields: first name, last name, active flag.  
-  - Validate input lengths and type formats.
-- **Ratings**:  
-  - Rating value must be an integer between 1 and 5.
-- **Profiles**:  
-  - Email uniqueness and password/format validations handled by Supabase Auth.
-- **Search History**:  
-  - Ensure `query` is not empty and `specialties` is a valid JSON array.
-  
-### Business Logic Mapping
-
-- **Doctor CRUD (US-009, US-010, US-011, US-012)**:  
-  - Endpoints ensure data integrity and enforce authorization (only admins or respective doctor can update).
-  - Cascade deletion of related data (addresses, ratings) enforced at the database level.
-- **AI Symptoms Analysis (US-006)**:
-  - Submission to `/ai/analyze` will trigger asynchronous processing using the OpenAI API.
-  - Caching responses for similar queries to optimize token usage.
-- **Search & Recommendation (US-005, US-007, US-008)**:  
-  - Integrate AI analysis results with search results.
-  - Include pagination, filtering, and sorting to improve performance.
-  - Return a match percentage for each doctor based on AI-derived metrics.
-- **Authentication & Route Protection (US-001 to US-004)**:  
-  - Utilize middleware to restrict access to protected routes.
-  - Automatic redirection at the frontend based on authentication status (handled by client-side logic consuming the API).
-
-This plan ensures that the API design leverages the strengths of the technical stack (React, Supabase, OpenAI, etc.), meets the PRD requirements, incorporates necessary business logic, and enforces validation and security at both API and database levels.
+Plan API będzie ewoluował wraz z rozwojem aplikacji MedIQ. Nowe punkty końcowe i modyfikacje istniejących będą dokumentowane w tym pliku.

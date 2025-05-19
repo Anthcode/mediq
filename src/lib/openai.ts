@@ -7,6 +7,8 @@ const openaiClient = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
+
+
 // Funkcja pobierająca unikalne specjalizacje lekarzy z bazy
 export async function fetchUniqueDoctorSpecialties(): Promise<string[]> {
   const { data, error } = await supabase
