@@ -24,20 +24,6 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   const { user, isLoading, hasAnyRole, hasPermission } = usePermissions();
   const location = useLocation();
   
-  // Debug logs
-  console.log('RoleBasedRoute rendering:', {
-    allowedRoles,
-    currentUserRole: user?.role,
-    isLoading,
-    path: location.pathname,
-    roleType: user?.role ? typeof user.role : 'no user',
-    userDetails: user ? {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      roleValid: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role)
-    } : 'not authenticated'
-  });
   
   // Loading state
   if (isLoading) {
@@ -54,14 +40,7 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   }
     // Check roles if provided
   if (allowedRoles.length > 0 && !hasAnyRole(allowedRoles)) {
-    console.log('RoleBasedRoute: Access denied due to role mismatch', {
-      allowedRoles,
-      userRole: user?.role,
-      path: location.pathname,
-      roleType: typeof user?.role,
-      isAdmin: user?.role === 'administrator',
-      rolesContainsAdmin: allowedRoles.includes('administrator')
-    });
+
     
     return <Navigate 
       to={fallbackPath} 
@@ -78,12 +57,6 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
       : permissions.some(permission => hasPermission(permission));
     
     if (!hasRequiredPermissions) {
-      console.log('RoleBasedRoute: Access denied due to permission mismatch', {
-        permissions,
-        userRole: user?.role,
-        path: location.pathname,
-        requireAll
-      });
       
       return <Navigate 
         to={fallbackPath} 

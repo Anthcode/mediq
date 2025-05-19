@@ -8,16 +8,16 @@ export const useAuth = (): AuthContextType => {
   }
   
   // Używamy osobnego obiektu do logów, aby uniknąć serializacji rzeczywistego użytkownika
-  console.log('useAuth hook:', {
-    user: context.user ? {
-      id: context.user.id,
-      email: context.user.email,
-      role: context.user.role,
-      roleType: typeof context.user.role,
-      validRole: ['administrator', 'doctor', 'moderator', 'user'].includes(context.user.role)
-    } : 'null',
-    isLoading: context.isLoading
-  });
+  // console.log('useAuth hook:', {
+  //   user: context.user ? {
+  //     id: context.user.id,
+  //     email: context.user.email,
+  //     role: context.user.role,
+  //     roleType: typeof context.user.role,
+  //     validRole: ['administrator', 'doctor', 'moderator', 'user'].includes(context.user.role)
+  //   } : 'null',
+  //   isLoading: context.isLoading
+  // });
   
   return context;
 };
