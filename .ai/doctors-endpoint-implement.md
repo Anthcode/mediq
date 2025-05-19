@@ -1,102 +1,66 @@
 # API Endpoint Implementation Plan: POST /doctors
 
-## 1. Przegląd punktu końcowego
+## 1. Cel
 
-Endpoint umożliwia utworzenie nowego profilu lekarza. Operacja ta jest dostępna tylko dla użytkowników o roli administratora. Przyjmuje dane lekarza wraz z powiązanymi relacjami, takimi jak specjalizacje, obszary ekspertyzy oraz adresy, i tworzy rekord w bazie danych.
+Ten dokument opisuje plan implementacji dla punktu końcowego API `POST /doctors`, który umożliwia tworzenie nowych rekordów lekarzy w systemie MedIQ.
 
 ## 2. Szczegóły żądania
 
 - **Metoda HTTP:** POST
-- **Struktura URL:** /doctors
-- **Parametry:**
-  - **Wymagane:**  
-    - `first_name` (string)
-    - `last_name` (string)
-    - `active` (boolean)
-    - `specialties` (string[]) – lista identyfikatorów specjalizacji
-    - `expertise_areas` (string[]) – lista identyfikatorów obszarów ekspertyzy
-    - `addresses` (CreateAddressCommand[]) – obiekty z danymi adresowymi
-  - **Opcjonalne:**  
-    - `experience` (number)
-    - `education` (string)
-    - `bio` (string)
-    - `profile_image_url` (string)
+- **Struktura URL:** `/rest/v1/rpc/create_doctor` (lub bezpośrednio do tabeli `doctors` z odpowiednimi RLS, jeśli nie używamy funkcji RPC opakowującej logikę biznesową wstawiania powiązań)
+  - *Uwaga: `doctorService.ts` używa `supabase.rpc('create_doctor', ...)`.*
 - **Request Body:**  
-  Struktura zgodna z typem `CreateDoctorCommand` zdefiniowanym w pliku `types.ts`.
+  Struktura zgodna z typem `CreateDoctorCommand` zdefiniowanym w pliku `src/types/dto.ts`. Główne pola to:
+  - `first_name` (string, wymagane)
+  - `last_name` (string, wymagane)
+  - `specialties` (string, wymagane - np. "kardiolog, internista")
+  - `experience` (number, opcjonalne)
+  - `education` (string, opcjonalne)
+  - `bio` (string, opcjonalne)
+  - `profile_image_url` (string, opcjonalne)
+  - `active` (boolean, opcjonalne, domyślnie true)
+  - `addresses` (tablica obiektów `CreateAddressCommand`, opcjonalne)
+    - Każdy obiekt adresu zawiera: `street`, `city`, `state`, `postal_code`, `country`, `is_primary` (opcjonalne).
 
 ## 3. Wykorzystywane typy
 
-- **CreateDoctorCommand:**  
-  Typ definiowany w `types.ts`, który jest rozszerzeniem modelu DoctorInsert z dodatkowymi relacjami i danymi adresowymi.
-- **DoctorDTO:**  
-  DTO dla zwróconego lekarza wraz z rozbudowanymi powiązaniami, tj. specialties, expertise_areas oraz addresses.
+- **`CreateDoctorCommand`:**  
+  Typ zdefiniowany w `src/types/dto.ts`. Reprezentuje dane wejściowe potrzebne do utworzenia nowego lekarza. Jest to rozszerzenie typu `DoctorInsert` (generowanego przez Supabase na podstawie schematu tabeli `doctors`), z pominięciem pól `id`, `created_at`, `updated_at`, oraz z dodaniem pola `addresses` (tablica `CreateAddressCommand`) do obsługi powiązanych adresów. Pole `specialties` jest typu `string`.
+- **`DoctorDTO`:**  
+  Typ zdefiniowany w `src/types/dto.ts`. Reprezentuje obiekt lekarza zwracany przez API po pomyślnym utworzeniu. Zawiera pełne dane lekarza, w tym `id`, `first_name`, `last_name`, `specialties` (jako string), `experience`, `education`, `bio`, `profile_image_url`, `active`, a także zagnieżdżone dane powiązane, takie jak `addresses` (tablica `Address`) i `ratings` (tablica `Rating`).
+  *Uwaga: `expertise_areas` (obszary ekspertyzy) nie są obecnie częścią `DoctorDTO` ani `CreateDoctorCommand`.*
 
 ## 4. Przepływ danych
 
-1. **Autoryzacja:**  
-   - Weryfikacja tokenu JWT w nagłówku `Authorization`.
-   - Sprawdzenie, czy użytkownik posiada rolę administratora.
-2. **Walidacja danych:**  
-   - Walidacja pól wymaganych (first_name, last_name, active, specialties, expertise_areas, addresses).
-   - Sprawdzenie formatu danych (np. UUID, typy danych).
-3. **Przetwarzanie żądania:**  
-   - Przekazanie żądania do warstwy serwisowej (doctorService), która obsługuje logikę biznesową.
-   - Przeprowadzenie operacji w ramach transakcji, aby utworzyć rekord lekarza oraz powiązane rekordy w tabelach relacyjnych.
-4. **Odpowiedź:**  
-   - Zwrócenie pełnego obiektu lekarza jako `DoctorDTO` z przypisanymi specjalizacjami, obszarami ekspertyzy oraz adresami.
-   - Status HTTP 201 Created przy pomyślnym utworzeniu.
+1.  **Autoryzacja:**
+    - Weryfikacja tokenu JWT w nagłówku `Authorization`.
+    - Sprawdzenie, czy użytkownik posiada rolę administratora (zgodnie z logiką w funkcji SQL `create_doctor` lub politykami RLS).
+2.  **Walidacja danych:**
+    - Walidacja pól wymaganych w `CreateDoctorCommand` (np. `first_name`, `last_name`, `specialties`).
+    - Sprawdzenie formatu danych (np. typy danych, struktura tablicy `addresses`). Walidacja powinna być realizowana zarówno na poziomie frontendu (wstępna), jak i backendu (ostateczna, np. przez funkcję Supabase lub ograniczenia bazy danych).
+3.  **Przetwarzanie żądania:**
+    - Żądanie jest przekazywane do metody `createDoctor` w `DoctorService`.
+    - `DoctorService` wywołuje funkcję RPC Supabase o nazwie `create_doctor`, przekazując obiekt `command` (typu `CreateDoctorCommand`) jako argument `doctor_data`.
+    - Funkcja SQL `create_doctor` (z migracji `20250516000002_add_doctor_functions.sql` lub jej zaktualizowanej wersji) powinna:
+        - Utworzyć nowy rekord w tabeli `doctors`.
+        - Dla każdego obiektu w tablicy `addresses` w `doctor_data`, utworzyć powiązany rekord w tabeli `addresses`.
+        - Operacje te powinny być wykonane w ramach transakcji, aby zapewnić spójność danych.
+    - *Uwaga: Istnieje rozbieżność. Najnowsza migracja SQL (`20250526000000_update_all_doctor_functions.sql`) modyfikuje `create_doctor` tak, że przyjmuje ona indywidualne parametry i nie obsługuje bezpośrednio zagnieżdżonych adresów w przekazywanym JSON, w przeciwieństwie do wcześniejszej wersji i oczekiwań `DoctorService`. Ta dokumentacja opisuje zamierzony przepływ zgodny z `DoctorService`.*
+4.  **Odpowiedź:**
+    - Po pomyślnym utworzeniu lekarza i powiązanych danych, `DoctorService` pobiera pełny obiekt nowo utworzonego lekarza (wraz z adresami i ocenami) za pomocą metody `getDoctorById`.
+    - Zwracany jest obiekt `DoctorDTO`.
+    - Status HTTP `201 Created`.
+    - W przypadku błędu (np. walidacji, autoryzacji, błędu bazy danych), zwracany jest odpowiedni kod statusu HTTP (np. 400, 401, 403, 500) wraz z komunikatem błędu.
 
 ## 5. Względy bezpieczeństwa
 
-- **Uwierzytelnianie:**  
-  - Wymaganie obecności tokenu JWT.
-- **Autoryzacja:**  
-  - Weryfikacja roli użytkownika (tylko administrator może utworzyć lekarza).
-- **Walidacja wejściowa:**  
-  - Dokładna walidacja danych wejściowych w celu zapobiegania atakom (np. SQL Injection, XSS).
-- **Transakcje:**  
-  - Użycie transakcji przy wprowadzaniu wielu powiązanych rekordów w celu zapewnienia integralności danych.
-
-## 6. Obsługa błędów
-
-- **400 Bad Request:**  
-  - Zwracanie błędu w przypadku nieprawidłowych lub niekompletnych danych wejściowych.
-- **401 Unauthorized:**  
-  - Zwracanie błędu, gdy brak jest ważnego tokenu JWT lub użytkownik nie ma odpowiednich uprawnień.
-- **500 Internal Server Error:**  
-  - Zwracanie błędu przy nieoczekiwanych błędach po stronie serwera (np. błąd podczas komunikacji z bazą danych).
-- **Logowanie:**  
-  - Rejestrowanie szczegółów błędów przy użyciu odpowiedniego mechanizmu loggera oraz opcjonalnie zapisywanie błędów do dedykowanej tabeli.
-
-## 7. Rozważania dotyczące wydajności
-
-- **Transakcje:**  
-  - Użycie transakcji do grupowania operacji insertów dla lekarza oraz powiązanych rekordów, aby zminimalizować liczbę zapytań do bazy.
-- **Indeksowanie:**  
-  - Wykorzystanie indeksów na tabelach (np. pełnotekstowy indeks na lekarzach) dla szybkiego wyszukiwania.
-- **Asynchroniczne przetwarzanie:**  
-  - W przyszłości rozważyć asynchroniczne przetwarzanie operacji, które dotyczą przetwarzania dużej ilości danych lub złożonej logiki biznesowej.
-
-## 8. Etapy wdrożenia
-
-1. **Przygotowanie autoryzacji:**  
-   - Implementacja middleware do weryfikacji tokenu JWT oraz sprawdzania roli użytkownika.
-2. **Walidacja wejścia:**  
-   - Utworzenie funkcji walidacyjnych dla danych wejściowych zgodnych z `CreateDoctorCommand`.
-3. **Implementacja warstwy serwisowej:**  
-   - Wyodrębnienie logiki do serwisu (doctorService) obejmującego:
-     - Walidację danych.
-     - Obsługę transakcji przy tworzeniu rekordu lekarza.
-     - Integrację z bazą danych oraz wstawianie powiązanych rekordów (specialties, expertise_areas, addresses).
-4. **Implementacja endpointu:**  
-   - Utworzenie kontrolera/handlera dla POST /doctors, który:
-     - Odbierze żądanie.
-     - Wykona walidację oraz autoryzację.
-     - Wywoła doctorService.createDoctor().
-     - Zwróci odpowiedź z kodem 201 Created oraz utworzonym obiektem `DoctorDTO`.
-5. **Testy:**  
-   - Implementacja testów jednostkowych i e2e (np. przy użyciu Jest, React Testing Library oraz Cypress), aby zweryfikować poprawność działania endpointu.
-6. **Logowanie i monitoring:**  
-   - Wdrożenie mechanizmu logowania błędów oraz monitoringu operacji API.
-7. **Review i wdrożenie:**  
-   - Code review, testy integracyjne oraz ostateczne wdrożenie w środowisku produkcyjnym za pomocą CI/CD (GitHub Actions).
+- **Uwierzytelnianie:**
+  - Wymaganie obecności ważnego tokenu JWT.
+- **Autoryzacja:**
+  - Weryfikacja roli użytkownika. Tylko użytkownicy z rolą 'administrator' (lub inną odpowiednio skonfigurowaną) mogą tworzyć nowych lekarzy. Jest to egzekwowane przez logikę wewnątrz funkcji SQL `create_doctor` lub przez polityki RLS na tabeli `doctors`.
+- **Walidacja wejściowa:**
+  - Dokładna walidacja wszystkich danych wejściowych (zarówno na poziomie aplikacji, jak i w bazie danych) w celu zapobiegania atakom (np. SQL Injection, XSS) oraz zapewnienia integralności danych. Użycie Zod do walidacji schematów na poziomie TypeScript jest zalecane.
+- **Ochrona przed nadużyciami:**
+  - Rozważenie mechanizmów ograniczania liczby żądań (rate limiting), jeśli dotyczy.
+- **Logowanie:**
+  - Logowanie prób utworzenia lekarza, zwłaszcza nieudanych, może być przydatne do celów audytu i bezpieczeństwa.

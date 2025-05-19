@@ -119,7 +119,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading, initialQuery
         </SearchIconWrapper>
         <SearchInput 
           placeholder={user ? "Opisz swoje objawy lub dolegliwości..." : "Zaloguj się, aby wyszukać lekarza"}
-          value={query}
+          value={!user ? "Zaloguj się, aby wyszukać lekarza" : query}
           onChange={(e) => setQuery(e.target.value)}
           disabled={!user}
           $fullWidth

@@ -25,21 +25,7 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
 }) => {
   const { user, hasAnyRole, hasPermission, isLoading } = usePermissions();
   
-  // Debug logs
-  console.log('PermissionGate:', {
-    roles,
-    userRole: user?.role,
-    roleType: user?.role ? typeof user.role : 'no user',
-    isLoading,
-    hasAccess: user ? hasAnyRole(roles) : false,
-    user: user ? {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      roleValid: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role)
-    } : 'no user'
-  });
-  
+
   // Nie renderuj nic podczas ładowania
   if (isLoading) {
     return null;
@@ -51,13 +37,7 @@ export const PermissionGate: React.FC<PermissionGateProps> = ({
   }
   // Check roles
   if (roles.length > 0 && !hasAnyRole(roles)) {
-    console.log('PermissionGate: Access denied, role mismatch', {
-      roles,
-      userRole: user?.role,
-      roleValid: user ? ['administrator', 'doctor', 'moderator', 'user'].includes(user.role) : false,
-      rolesContainsAdministrator: roles.includes('administrator'),
-      isUserAdmin: user?.role === 'administrator'
-    });
+
     return showFallback ? <>{fallback}</> : null;
   }
 

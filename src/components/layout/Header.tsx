@@ -51,25 +51,11 @@ const Nav = styled.nav`
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-    console.log('Header rendering:', { 
-    isLoading,
-    user: user ? {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      roleType: typeof user.role
-    } : "null",
-    userRole: user?.role,
-    isAuthenticated: !!user 
-  });
+
 
   const handleSignOut = async () => {
     try {
-      // Pozwól onAuthStateChange obsłużyć zmianę stanu użytkownika dla spójności
-      // setUser(null); 
-      // Supabase zarządza własnym przechowywaniem sesji
-      // localStorage.removeItem('mediq_auth');
-
+      // Wyloguj użytkownika z Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       

@@ -4,32 +4,13 @@ import { ROLE_PERMISSIONS, UserRole, ROLE_HIERARCHY, Permission } from '../types
 export const usePermissions = () => {
   const { user, isLoading } = useAuth();
 
-  console.log('usePermissions hook state:', {
-    user: user ? {
-      ...user,
-      role: user.role,
-      roleType: typeof user.role,
-      roleValid: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role)
-    } : null,
-    isLoading,
-  });
+  
 
   /**
    * Sprawdza czy użytkownik ma konkretną rolę
    */
   const hasRole = (role: UserRole): boolean => {
     const result = user?.role === role;
-    console.log('hasRole check:', { 
-      role, 
-      userRole: user?.role,
-      roleType: user?.role ? typeof user.role : 'no user',
-      result,
-      user: user ? {
-        id: user.id,
-        email: user.email,
-        role: user.role
-      } : null
-    });
     return result;
   };
 
@@ -48,15 +29,7 @@ export const usePermissions = () => {
     }
 
     const result = roles.includes(user.role);
-    console.log('hasAnyRole check:', { 
-      roles, 
-      userRole: user.role,
-      roleType: typeof user.role,
-      validRole: ['administrator', 'doctor', 'moderator', 'user'].includes(user.role),
-      result,
-      rolesContainsAdministrator: roles.includes('administrator'),
-      isAdmin: user.role === 'administrator'
-    });
+    
     return result;
   };
 
@@ -78,12 +51,6 @@ export const usePermissions = () => {
     const userPermissions: readonly Permission[] = ROLE_PERMISSIONS[user.role];
     const result = userPermissions.includes('*' as Permission) || userPermissions.includes(permission);
     
-    console.log('hasPermission check:', {
-      permission,
-      userRole: user.role,
-      userPermissions,
-      result
-    });
     
     return result;
   };
