@@ -89,11 +89,17 @@ export interface AIAnalysisDTO {
 export interface UserProfileDTO {
     first_name: string;
     last_name: string;
+    role: string; // Ta wartość jest dodawana przez serwis, nie jest przechowywana w tabeli profiles
+}
+
+// DTO reprezentujący rolę użytkownika
+export interface UserRoleDTO {
+    user_id: string;
     role: string;
 }
 
 // Command model dla aktualizacji profilu użytkownika – pola opcjonalne
-export type UpdateUserProfileCommand = Partial<UserProfileDTO>;
+export type UpdateUserProfileCommand = Partial<Omit<UserProfileDTO, 'role'>>;
 
 /* 6. Authentication DTOs */
 

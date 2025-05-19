@@ -7,7 +7,6 @@ import { Container } from '../components/common/Container';
 import { Button } from '../components/common/Button';
 import { Input, Label, FormGroup, InputError } from '../components/common/Input';
 import { supabase } from '../lib/supabase';
-import { useAuth } from '../hooks/useAuth';
 
 const AuthContainer = styled.div`
   display: flex;
@@ -116,7 +115,7 @@ interface AuthError {
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
+  // Nie potrzebujemy setUser - obsłużymy to przez onAuthStateChange w AuthContext
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: ''
@@ -158,8 +157,7 @@ export const LoginPage: React.FC = () => {
       }));
     }
   };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -167,6 +165,7 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     
     try {
+      console.log('Próba logowania...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password
@@ -175,25 +174,10 @@ export const LoginPage: React.FC = () => {
       if (error) {
         throw new Error(error.message);
       }
-      
-      if (data.user) {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-
-        if (profileError) {
-          throw new Error('Nie udało się pobrać profilu użytkownika');
-        }
-
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          first_name: data.user.user_metadata.first_name,
-          last_name: data.user.user_metadata.last_name,
-          role: profile.role
-        });
+        if (data.user) {
+        console.log('Logowanie pomyślne, przekierowywanie...');
+        // Nie ustawiamy ręcznie użytkownika - obsługa autoryzacji i pobierania roli 
+        // jest obsługiwana przez AuthContext poprzez onAuthStateChange
         navigate('/');
       }
     } catch (error) {
@@ -292,7 +276,6 @@ export const LoginPage: React.FC = () => {
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser } = useAuth();
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: '',
@@ -344,8 +327,7 @@ export const SignupPage: React.FC = () => {
       }));
     }
   };
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) return;
@@ -364,17 +346,19 @@ export const SignupPage: React.FC = () => {
           }
         }
       });
-      
+        
       if (error) {
         throw new Error(error.message);
       }
-        if (data.user) {
+      
+      if (data.user) {
         // 2. Utworzenie rekordu w tabeli profiles
+        console.log('Tworzenie profilu użytkownika...');
         const { error: profileError } = await supabase.rpc('create_user_profile', {
-          user_id: data.user.id,
-          user_email: formData.email,
-          user_first_name: formData.firstName,
-          user_last_name: formData.lastName
+          p_user_id: data.user.id,
+          p_user_email: formData.email,
+          p_user_first_name: formData.firstName,
+          p_user_last_name: formData.lastName
         });
 
         if (profileError) {
@@ -382,15 +366,11 @@ export const SignupPage: React.FC = () => {
           // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
           await supabase.auth.admin.deleteUser(data.user.id);
           throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
-        }
-
-        setUser({
-          id: data.user.id,
-          email: data.user.email || '',
-          first_name: formData.firstName!,
-          last_name: formData.lastName!,
-          role: 'user'
-        });
+        }        
+        console.log('Profil użytkownika utworzony pomyślnie!');
+        
+        // Nie musimy ręcznie ustawiać użytkownika - robi to AuthContext
+        // Przekierowanie do strony głównej
         navigate('/');
       }
     } catch (error) {

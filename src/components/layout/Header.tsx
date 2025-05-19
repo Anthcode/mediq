@@ -7,6 +7,7 @@ import { Container } from '../common/Container';
 import { theme } from '../../styles/theme';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { PermissionGate } from '../common/PermissionGate';
 
 const HeaderContainer = styled.header`
   background-color: ${theme.colors.background.default};
@@ -49,27 +50,39 @@ const Nav = styled.nav`
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { user, setUser } = useAuth();
-  
+  const { user, isLoading } = useAuth();
+
+
   const handleSignOut = async () => {
     try {
-      // Najpierw wyczyść stan użytkownika
-      setUser(null);
-      // Następnie wyczyść dane użytkownika z localStorage
-      localStorage.removeItem('mediq_auth');
-      // Możesz również wyczyścić inne dane, jeśli są przechowywane w localStorage
-
-      
-      // Następnie wyloguj z Supabase
+      // Wyloguj użytkownika z Supabase
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Na końcu przekieruj na stronę główną
+      // Przekieruj po pomyślnym wylogowaniu
       navigate('/', { replace: true });
     } catch (error) {
       console.error('Błąd podczas wylogowywania:', error);
     }
   };
+
+  // Jeśli stan autentykacji wciąż się ładuje, pokaż uproszczony nagłówek
+  // lub dedykowany komponent ładowania dla nagłówka.
+  if (isLoading) {
+    return (
+      <HeaderContainer>
+        <Container $maxWidth="lg">
+          <HeaderContent>
+            <Logo to="/">
+              <LogoImage src="/logo.png" alt="Logo MedIQ" />
+            </Logo>
+            {/* Można dodać mały spinner lub placeholder dla przycisków nawigacji */}
+            <Nav /> 
+          </HeaderContent>
+        </Container>
+      </HeaderContainer>
+    );
+  }
   
   return (
     <HeaderContainer>
@@ -78,11 +91,11 @@ const Header: React.FC = () => {
           <Logo to="/">
             <LogoImage src="/logo.png" alt="Logo MedIQ" />
           </Logo>
-          
-          <Nav>
+            <Nav>
             {user ? (
               <>
-                {user.role === 'administrator' && (
+                {/* Admin Panel - tylko dla administratorów */}
+                <PermissionGate roles={['administrator']}>
                   <Button 
                     as={Link} 
                     to="/admin" 
@@ -90,9 +103,24 @@ const Header: React.FC = () => {
                     size="small"
                   >
                     <Settings size={16} style={{ marginRight: '4px' }} />
-                    Panel admina
+                    Panel administracyjny
                   </Button>
-                )}
+                </PermissionGate>
+
+                {/* Doctor Panel - dla lekarzy i adminów */}
+                <PermissionGate roles={['doctor', 'administrator']}>
+                  <Button 
+                    as={Link} 
+                    to="/doctor" 
+                    variant="outlined"
+                    size="small"
+                  >
+                    <User size={16} style={{ marginRight: '4px' }} />
+                    Panel lekarza
+                  </Button>
+                </PermissionGate>
+
+                {/* Profile - dla wszystkich zalogowanych */}
                 <Button 
                   as={Link} 
                   to="/profile" 
@@ -102,6 +130,7 @@ const Header: React.FC = () => {
                   <User size={16} style={{ marginRight: '4px' }} />
                   Profil
                 </Button>
+
                 <Button 
                   variant="text"
                   size="small"
@@ -125,10 +154,7 @@ const Header: React.FC = () => {
                   as={Link} 
                   to="/signup" 
                   variant="primary"
-                
                   size="small"
-
-
                 >
                   Zarejestruj się
                 </Button>

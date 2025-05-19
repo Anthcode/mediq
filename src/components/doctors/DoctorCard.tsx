@@ -9,6 +9,7 @@ import { DoctorDTO } from '../../types/dto';
 import type { Rating as RatingType } from '../../types/database.types';
 import { supabase } from '../../lib/supabase';
 import { DoctorService } from '../../services/doctorService';
+import { PermissionGate } from '../common/PermissionGate';
 
 const DoctorCardContainer = styled(Card)`
   display: flex;
@@ -195,25 +196,25 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
           <RelevanceScore score={doctor.matchPercentage}>
             {doctor.matchPercentage}% Dopasowania
           </RelevanceScore>
-        )}
-
-        {isAdmin && (
-          <AdminActions>
-            <IconButton 
-              variant="outlined" 
-              onClick={handleEdit}
-              title="Edytuj"
-            >
-              <Edit2 size={16} />
-            </IconButton>
-            <IconButton 
-              variant="outlined" 
-              onClick={handleDeleteClick}
-              title="Usuń"
-            >
-              <Trash2 size={16} color={theme.colors.error.main} />
-            </IconButton>
-          </AdminActions>
+        )}        {isAdmin && (
+          <PermissionGate roles={['administrator']}>
+            <AdminActions>
+              <IconButton 
+                variant="outlined" 
+                onClick={handleEdit}
+                title="Edytuj"
+              >
+                <Edit2 size={16} />
+              </IconButton>
+              <IconButton 
+                variant="outlined" 
+                onClick={handleDeleteClick}
+                title="Usuń"
+              >
+                <Trash2 size={16} color={theme.colors.error.main} />
+              </IconButton>
+            </AdminActions>
+          </PermissionGate>
         )}
         
         <AvatarContainer>
