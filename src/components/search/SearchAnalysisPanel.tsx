@@ -70,7 +70,7 @@ const SpecialtyName = styled.span`
   color: ${theme.colors.text.primary};
 `;
 
-const MatchPercentage = styled.div<{ percentage: number }>`
+const MatchPercentage = styled.div<{ $percentage: number }>`
   display: flex;
   align-items: center;
   gap: ${theme.spacing(1)};
@@ -86,12 +86,12 @@ const ProgressBar = styled.div`
   max-width: 200px;
 `;
 
-const Progress = styled.div<{ percentage: number }>`
+const Progress = styled.div<{ $percentage: number }>`
   height: 100%;
-  width: ${props => props.percentage}%;
+  width: ${props => props.$percentage}%;
   background-color: ${props => {
-    if (props.percentage >= 80) return theme.colors.success.main;
-    if (props.percentage >= 50) return theme.colors.primary.main;
+    if (props.$percentage >= 80) return theme.colors.success.main;
+    if (props.$percentage >= 50) return theme.colors.primary.main;
     return theme.colors.warning.main;
   }};
   transition: width 0.3s ease-in-out;
@@ -145,9 +145,9 @@ const SearchAnalysisPanel: React.FC<SearchAnalysisPanelProps> = ({
               <SpecialtyItem key={specialty.id}>
                 <SpecialtyHeader>
                   <SpecialtyName>{specialty.name}</SpecialtyName>
-                  <MatchPercentage percentage={specialty.matchPercentage}>
+                  <MatchPercentage $percentage={specialty.matchPercentage}>
                     <ProgressBar>
-                      <Progress percentage={specialty.matchPercentage} />
+                      <Progress $percentage={specialty.matchPercentage} />
                     </ProgressBar>
                     <PercentageValue>{specialty.matchPercentage}%</PercentageValue>
                   </MatchPercentage>

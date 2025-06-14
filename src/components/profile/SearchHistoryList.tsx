@@ -141,8 +141,8 @@ const SearchHistoryList: React.FC<SearchHistoryListProps> = ({
         </HistoryTitle>
         {history.length > 0 && (
           <Button
-            variant="outlined"
-            size="small"
+            $variant="outlined"
+            $size="small"
             onClick={() => setIsModalOpen(true)}
           >
             <Trash2 size={16} style={{ marginRight: '4px' }} />
@@ -180,14 +180,14 @@ const SearchHistoryList: React.FC<SearchHistoryListProps> = ({
             </ModalText>
             <ModalActions>
               <Button 
-                variant="outlined" 
+                $variant="outlined" 
                 onClick={() => setIsModalOpen(false)}
                 disabled={isDeleting}
               >
                 Anuluj
               </Button>
               <Button 
-                variant="primary" 
+                $variant="primary" 
                 onClick={handleClearAll}
                 disabled={isDeleting}
               >

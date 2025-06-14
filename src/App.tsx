@@ -15,6 +15,9 @@ import AdminDashboardPage from './pages/admin/DashboardPage';
 import DoctorsPage from './pages/admin/DoctorsPage';
 import EditDoctorPage from './pages/admin/EditDoctorPage';
 import { RoleBasedRoute, AdminRoute } from './components/common/RoleBasedRoute';
+import { SupabaseErrorProvider } from "./hooks/useSupabaseErrorBoundary";
+import { SupabaseErrorBox } from './components/SupabaseErrorBox';
+
 import styled from 'styled-components';
 
 // Protected route component that redirects to login if user is not authenticated
@@ -54,6 +57,8 @@ const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const AppRoutes: React.FC = () => {
   return (
+    <SupabaseErrorProvider>
+    <SupabaseErrorBox />
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route 
@@ -137,6 +142,7 @@ const AppRoutes: React.FC = () => {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </SupabaseErrorProvider>
   );
 };
 

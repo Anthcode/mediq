@@ -1,95 +1,95 @@
 # MedIQ 🚀
 
-## Table of Contents
+## Spis treści
 
-- [Project Description 📋](#project-description)
-- [Tech Stack 🛠️](#tech-stack)
-- [Getting Started Locally 🚀](#getting-started-locally)
-- [Available Scripts ⚙️](#available-scripts)
-- [Project Scope 🔍](#project-scope)
-- [Project Status 📈](#project-status)
-- [License 📜](#license)
+- Opis projektu 📋
+- Stos technologiczny 🛠️
+- Uruchomienie lokalne 🚀
+- Dostępne skrypty ⚙️
+- Zakres projektu 🔍
+- Status projektu 📈
+- Licencja 📜
 
-## Project Description
+## Opis projektu
 
-MedIQ is an innovative web platform that leverages artificial intelligence to analyze patient symptoms and connect users with the most suitable medical specialists. By simply describing their symptoms, patients receive personalized recommendations and detailed profiles of doctors, streamlining the process of finding the right specialist.
+MedIQ to innowacyjna platforma internetowa wykorzystująca sztuczną inteligencję do analizy objawów pacjentów i łączenia użytkowników z najbardziej odpowiednimi specjalistami medycznymi. Dzięki prostemu opisowi swoich dolegliwości, pacjenci otrzymują spersonalizowane rekomendacje i szczegółowe profile lekarzy, co znacznie upraszcza proces znalezienia właściwego specjalisty.
 
-Key features include:
+Kluczowe funkcje obejmują:
 
-- AI-driven symptom analysis using the OpenAI GPT-4o-mini model. 🤖
-- Comprehensive CRUD functionalities for managing doctor profiles. 🏥
-- User authentication and profile management powered by Supabase. 🔐
-- Responsive, mobile-first design ensuring accessibility on all devices. 📱
-- Automated testing and CI/CD pipeline to ensure code quality and deployment efficiency. ✅
+- Analiza objawów oparta na AI z wykorzystaniem modelu OpenAI GPT-4o-mini 🤖
+- Kompleksowe funkcje CRUD do zarządzania profilami lekarzy 🏥
+- Uwierzytelnianie użytkowników i zarządzanie profilami z wykorzystaniem Supabase 🔐
+- Responsywny design zorientowany na urządzenia mobilne zapewniający dostępność na wszystkich urządzeniach 📱
+- Zautomatyzowane testy i pipeline CI/CD zapewniające jakość kodu i efektywność wdrażania ✅
 
-## Tech Stack
+## Stos technologiczny
 
-- **Frontend:** React 18+, TypeScript, Vite, React Router v6, Styled Components, Tailwind CSS, Lucide-react for icons, and React hooks (useState, useEffect, etc.).
-- **Backend:** Supabase for authentication, PostgreSQL for database, Supabase Storage for media, and integration with OpenAI API for health query analysis.
-- **DevOps & Testing:** GitHub Actions for CI/CD, Jest and React Testing Library for unit tests, Cypress for end-to-end tests, ESLint, and Prettier for code quality.
+- **Frontend:** React 18+, TypeScript, Vite, React Router v6, Styled Components, Tailwind CSS, Lucide-react (ikony) oraz React hooks (useState, useEffect, itp.).
+- **Backend:** Supabase do uwierzytelniania, PostgreSQL jako baza danych, Supabase Storage do przechowywania mediów oraz integracja z OpenAI API do analizy zapytań zdrowotnych.
+- **DevOps i Testy:** GitHub Actions do CI/CD, Jest i React Testing Library do testów jednostkowych, Cypress do testów end-to-end, ESLint i Prettier do zapewnienia jakości kodu.
 
-## Getting Started Locally
+## Uruchomienie lokalne
 
-1. **Clone the repository:**
+1. **Klonowanie repozytorium:**
 
    ```sh
    git clone https://github.com/your-username/mediq.git
    cd mediq
    ```
 
-2. **Install dependencies:**
+2. **Instalacja zależności:**
 
    ```sh
    npm install
    ```
 
-3. **Run the development server:**
+3. **Uruchomienie serwera deweloperskiego:**
 
    ```sh
    npm run dev
    ```
 
-4. **Open your browser:**
-   Visit [http://localhost:3000](http://localhost:3000) or the port specified by Vite.
+4. **Otwarcie przeglądarki:**
+   Odwiedź [http://localhost:3000](http://localhost:3000) lub port określony przez Vite.
 
-## Available Scripts
+## Dostępne skrypty
 
-- **`npm run dev`**: Starts the development server with hot module replacement.
-- **`npm run build`**: Bundles the app into static files for production.
-- **`npm run preview`**: Serves the production build locally.
-- **`npm test`**: Runs unit and integration tests using Jest and React Testing Library.
-- **`npm run e2e`**: Runs end-to-end tests with Cypress.
-- **`npm run lint`**: Checks for code quality issues with ESLint.
+- **`npm run dev`**: Uruchamia serwer deweloperski z hot module replacement.
+- **`npm run build`**: Buduje aplikację w wersji produkcyjnej.
+- **`npm run preview`**: Serwuje zbudowaną wersję produkcyjną lokalnie.
+- **`npm test`**: Uruchamia testy jednostkowe i integracyjne przy użyciu Jest i React Testing Library.
+- **`npm run e2e`**: Uruchamia testy end-to-end z Cypress.
+- **`npm run lint`**: Sprawdza problemy z jakością kodu przy użyciu ESLint.
 
-## Project Scope
+## Zakres projektu
 
-### In-Scope Features
+### Funkcje w zakresie
 
-- AI-powered search for doctors based on user-input symptoms.
-- Full CRUD operations for managing doctor profiles (creation, editing, viewing, and deletion).
-- User authentication and session management using Supabase.
-- Responsive, mobile-first user interface designed per WCAG 2.1 AA guidelines.
-- Automated testing (unit, integration, and e2e) and CI/CD pipeline through GitHub Actions.
-- Caching mechanisms for optimizing API queries.
-- Performance optimization using techniques like lazy loading and React.memo.
+- Wyszukiwanie lekarzy oparte na AI na podstawie objawów wprowadzonych przez użytkownika.
+- Pełne operacje CRUD do zarządzania profilami lekarzy (tworzenie, edycja, przeglądanie i usuwanie).
+- Uwierzytelnianie użytkowników i zarządzanie sesjami z wykorzystaniem Supabase.
+- Responsywny interfejs użytkownika zorientowany na urządzenia mobilne, zaprojektowany zgodnie z wytycznymi WCAG 2.1 AA.
+- Zautomatyzowane testy (jednostkowe, integracyjne i e2e) oraz pipeline CI/CD poprzez GitHub Actions.
+- Mechanizmy cache'owania do optymalizacji zapytań API.
+- Optymalizacja wydajności z wykorzystaniem technik takich jak lazy loading i React.memo.
 
-### Out-of-Scope Features
+### Funkcje poza zakresem
 
-- Telemedicine functionalities (online consultations).
-- Appointment booking systems.
-- Payment processing systems.
-- Comprehensive electronic health records.
-- Chat or direct communication with doctors.
-- Integration with external medical systems.
-- Full mobile applications (only responsive web design).
-- Multilingual support (Polish only).
-- Integration with health insurance systems.
-- Prescription management systems.
+- Funkcjonalności telemedycyny (konsultacje online).
+- Systemy rezerwacji wizyt.
+- Systemy przetwarzania płatności.
+- Kompleksowa elektroniczna dokumentacja medyczna.
+- Czat lub bezpośrednia komunikacja z lekarzami.
+- Integracja z zewnętrznymi systemami medycznymi.
+- Pełne aplikacje mobilne (tylko responsywny design web).
+- Wsparcie wielojęzyczne (tylko język polski).
+- Integracja z systemami ubezpieczeń zdrowotnych.
+- Systemy zarządzania receptami.
 
-## Project Status
+## Status projektu
 
-MedIQ is currently in active development as an MVP. The project focuses on core functionalities including AI-based analysis, doctor management, and user management. Continuous monitoring of performance metrics, code quality, and user feedback is in place to ensure rapid and reliable improvements.
+MedIQ jest obecnie w aktywnej fazie rozwoju jako MVP. Projekt koncentruje się na kluczowych funkcjonalnościach, w tym analizie opartej na AI, zarządzaniu lekarzami i zarządzaniu użytkownikami. Ciągłe monitorowanie wskaźników wydajności, jakości kodu i opinii użytkowników jest wdrożone, aby zapewnić szybkie i niezawodne usprawnienia.
 
-## License
+## Licencja
 
-This project is licensed under the MIT License.
+Ten projekt jest licencjonowany na podstawie licencji MIT

@@ -107,8 +107,8 @@ export const UserRoleManager: React.FC<UserRoleManagerProps> = ({
         <Button
           onClick={handleRoleChange}
           disabled={isUpdating || selectedRole === currentRole}
-          size="small"
-          variant="primary"
+          $size="small"
+          $variant="primary"
         >
           {isUpdating ? 'Zapisywanie...' : 'Zmień rolę'}
         </Button>

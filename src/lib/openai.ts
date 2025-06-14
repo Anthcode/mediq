@@ -3,8 +3,12 @@ import { supabase } from './supabase';
 import { HealthQueryAnalysis } from '../types/search';
 
 const openaiClient = new OpenAI({
-  apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: import.meta.env.VITE_OPENROUTER_API_KEY,
+  dangerouslyAllowBrowser: true,
+  defaultHeaders: {
+    'HTTP-Referer': window.location.origin
+  }
 });
 
 
@@ -42,11 +46,12 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
   Dla każdej specjalizacji podaj procentowe dopasowanie jako liczbę od 60 do 100.
   Dla każdej specjalizacji podaj krótkie uzasadnienie, dlaczego jest odpowiednia dla opisanych objawów.
   `;
- 
+     // model: "gpt-4o-mini",
   try {
     const completion = await openaiClient.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
+  
+      model: "google/gemini-2.0-flash-exp:free",
+            messages: [
         {
           role: "system",
           content: `Jesteś specjalistą medycznym, który pomaga w identyfikacji odpowiednich specjalizacji lekarskich na podstawie objawów.
@@ -69,7 +74,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
         }
       ],
       temperature: 0,
-      max_tokens: 800
+     // max_tokens: 800
       
     });
    
@@ -77,8 +82,35 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
     if (!content) {
       throw new Error('Otrzymano pustą odpowiedź od API');
     }
-   
-    const result = JSON.parse(content) as HealthQueryAnalysis;
+    
+   // Sprawdź czy odpowiedź została obcięta
+const finishReason = completion.choices[0].finish_reason;
+if (finishReason === 'length') {
+  console.warn('Odpowiedź została obcięta z powodu limitu tokenów');
+}
+
+// Wyczyść content z markdown i niepełnych fragmentów
+let cleanContent = content.trim();
+if (cleanContent.startsWith('```json')) {
+  cleanContent = cleanContent.replace(/^```json\s*/, '');
+}
+if (cleanContent.endsWith('```')) {
+  cleanContent = cleanContent.replace(/```$/, '');
+}
+
+// Jeśli JSON jest niepełny, spróbuj go naprawić
+if (!cleanContent.endsWith('}')) {
+  // Znajdź ostatni kompletny obiekt w specialtyMatches
+  const lastCompleteMatch = cleanContent.lastIndexOf('},');
+  if (lastCompleteMatch !== -1) {
+    cleanContent = cleanContent.substring(0, lastCompleteMatch + 1) + ']}';
+  } else {
+    // Jeśli nie ma żadnego kompletnego obiektu, dodaj podstawową strukturę
+    cleanContent = cleanContent + ']}';
+  }
+}
+
+    const result = JSON.parse(cleanContent) as HealthQueryAnalysis;
     
     // Walidacja i korekta wartości matchPercentage
     result.specialtyMatches = result.specialtyMatches.map(match => {

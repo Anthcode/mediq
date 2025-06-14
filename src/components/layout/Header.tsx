@@ -99,8 +99,8 @@ const Header: React.FC = () => {
                   <Button 
                     as={Link} 
                     to="/admin" 
-                    variant="outlined"
-                    size="small"
+                    $variant="outlined"
+                    $size="small"
                   >
                     <Settings size={16} style={{ marginRight: '4px' }} />
                     Panel administracyjny
@@ -112,8 +112,8 @@ const Header: React.FC = () => {
                   <Button 
                     as={Link} 
                     to="/doctor" 
-                    variant="outlined"
-                    size="small"
+                    $variant="outlined"
+                    $size="small"
                   >
                     <User size={16} style={{ marginRight: '4px' }} />
                     Panel lekarza
@@ -124,16 +124,16 @@ const Header: React.FC = () => {
                 <Button 
                   as={Link} 
                   to="/profile" 
-                  variant="outlined"
-                  size="small"
+                  $variant="outlined"
+                  $size="small"
                 >
                   <User size={16} style={{ marginRight: '4px' }} />
                   Profil
                 </Button>
 
                 <Button 
-                  variant="text"
-                  size="small"
+                  $variant="text"
+                  $size="small"
                   onClick={handleSignOut}
                 >
                   <LogOut size={16} style={{ marginRight: '4px' }} />
@@ -145,16 +145,16 @@ const Header: React.FC = () => {
                 <Button 
                   as={Link} 
                   to="/login" 
-                  variant="outlined"
-                  size="small"
+                  $variant="outlined"
+                  $size="small"
                 >
                   Zaloguj się
                 </Button>
                 <Button 
                   as={Link} 
                   to="/signup" 
-                  variant="primary"
-                  size="small"
+                  $variant="primary"
+                  $size="small"
                 >
                   Zarejestruj się
                 </Button>

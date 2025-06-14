@@ -61,15 +61,15 @@ const InfoItem = styled.li`
   gap: ${theme.spacing(1)};
 `;
 
-const RelevanceScore = styled.div<{ score: number }>`
+const RelevanceScore = styled.div<{ $score: number }>`
   position: absolute;
   top: ${theme.spacing(1)};
   right: ${theme.spacing(1)};
   background-color: ${props => {
-    const score = props.score;
-    if (score >= 90) return theme.colors.success.main;
-    if (score >= 70) return theme.colors.secondary.main;
-    if (score >= 50) return theme.colors.warning.main;
+    const $score = props.$score;
+    if ($score >= 90) return theme.colors.success.main;
+    if ($score >= 70) return theme.colors.secondary.main;
+    if ($score >= 50) return theme.colors.warning.main;
     return theme.colors.neutral.main;
   }};
   color: white;
@@ -193,21 +193,21 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
     <>
       <DoctorCardContainer>
         {doctor.matchPercentage !== undefined && (
-          <RelevanceScore score={doctor.matchPercentage}>
+          <RelevanceScore $score={doctor.matchPercentage}>
             {doctor.matchPercentage}% Dopasowania
           </RelevanceScore>
         )}        {isAdmin && (
           <PermissionGate roles={['administrator']}>
             <AdminActions>
               <IconButton 
-                variant="outlined" 
+                $variant="outlined" 
                 onClick={handleEdit}
                 title="Edytuj"
               >
                 <Edit2 size={16} />
               </IconButton>
               <IconButton 
-                variant="outlined" 
+                $variant="outlined" 
                 onClick={handleDeleteClick}
                 title="Usuń"
               >
@@ -248,7 +248,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
           <Button 
             as={Link} 
             to={`/doctors/${doctor.id}`}
-            variant="outlined"
+            $variant="outlined"
             $fullWidth
           >
             Zobacz profil
@@ -271,7 +271,7 @@ const DoctorCard: React.FC<DoctorCardProps> = ({ doctor, isAdmin = false, onDele
               </DialogText>
               <DialogActions>
                 <Button
-                  variant="outlined"
+                  $variant="outlined"
                   onClick={() => setIsDeleteDialogOpen(false)}
                   disabled={isDeleting}
                 >

@@ -245,8 +245,8 @@ const HomePage: React.FC = () => {
               </UnauthorizedText>
               <Button 
                 onClick={() => navigate('/login')}
-                variant="primary"
-                size="small"
+                $variant="primary"
+                $size="small"
                 style={{ marginTop: theme.spacing(1) }}
               >
                 Zaloguj się

@@ -105,7 +105,7 @@ const EditDoctorPage: React.FC = () => {
     <AdminLayout>
       <PageHeader>
         <BackButton 
-          variant="text" 
+          $variant="text" 
           onClick={handleCancel}
         >
           <ArrowLeft size={18} style={{ marginRight: '4px' }} />
