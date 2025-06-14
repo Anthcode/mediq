@@ -91,24 +91,37 @@ export class DoctorService {
     }
 
     return data as DoctorDTO;
-  }
-
-  async createDoctor(command: CreateDoctorCommand): Promise<DoctorDTO> {
+  }  async createDoctor(command: CreateDoctorCommand): Promise<DoctorDTO> {
+    // Wydzielamy adresy z command
+    const { addresses, ...doctorData } = command;
+    
+    // Przygotowujemy dane dla funkcji 1 (oczekuje address, nie addresses)
+    const cleanCommand: Record<string, unknown> = { ...doctorData };
+    
+    // Funkcja 1 obsługuje tylko jeden adres jako 'address' (nie 'addresses')
+    if (addresses && addresses.length > 0) {      // Bierzemy pierwszy adres i usuwamy pole doctor_id (będzie ustawione przez funkcję DB)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { doctor_id: _doctor_id, is_primary: _is_primary, ...addressData } = addresses[0];
+      cleanCommand.address = addressData;
+    }
+    
+    // Wywołujemy RPC z oczyszczonymi danymi
     const { data, error } = await this.supabase.rpc('create_doctor', {
-      doctor_data: command
+      doctor_data: cleanCommand
     });
 
     if (error) {
+      console.error("Error details:", error);
       throw new Error(`Failed to create doctor: ${error.message}`);
     }
 
-    return this.getDoctorById(data.id);
+    return this.getDoctorById(data);
   }
   async updateDoctor(id: string, command: UpdateDoctorCommand): Promise<DoctorDTO> {
-    // Rozpocznij transakcję
+    // Wydzielamy adresy z command
     const { addresses, ...doctorData } = command;
     
-    // Aktualizuj podstawowe dane lekarza
+    // Aktualizuj podstawowe dane lekarza bezpośrednio
     const { error: doctorError } = await this.supabase
       .from('doctors')
       .update(doctorData)
@@ -118,27 +131,19 @@ export class DoctorService {
       throw new Error(`Failed to update doctor: ${doctorError.message}`);
     }
 
-    // Jeśli są nowe adresy do zaktualizowania
-    if (addresses && addresses.length > 0) {
-      // Usuń stare adresy
-      const { error: deleteError } = await this.supabase
-        .from('addresses')
-        .delete()
-        .eq('doctor_id', id);
-
-      if (deleteError) {
-        throw new Error(`Failed to update addresses: ${deleteError.message}`);
-      }      // Dodaj nowe adresy z użyciem funkcji RPC
+    // Jeśli są adresy do zaktualizowania
+    if (addresses && addresses.length > 0) {      // Przygotuj adresy bez problematycznych pól UUID
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const cleanAddresses = addresses.map(({ doctor_id: _doctor_id, is_primary: _is_primary, ...addressData }) => addressData);
+      
+      // Użyj funkcji RPC do zarządzania adresami
       const { error: addressError } = await this.supabase.rpc('manage_doctor_addresses', {
         p_doctor_id: id,
-        p_addresses: addresses.map(address => ({
-          ...address,
-          doctor_id: id
-        }))
+        p_addresses: cleanAddresses
       });
 
       if (addressError) {
-        throw new Error(`Failed to insert new addresses: ${addressError.message}`);
+        throw new Error(`Failed to update addresses: ${addressError.message}`);
       }
     }
 

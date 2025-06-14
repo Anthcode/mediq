@@ -346,28 +346,14 @@ export const SignupPage: React.FC = () => {
           }
         }
       });
-        
-      if (error) {
+          if (error) {
         throw new Error(error.message);
       }
       
       if (data.user) {
-        // 2. Utworzenie rekordu w tabeli profiles
-        console.log('Tworzenie profilu użytkownika...');
-        const { error: profileError } = await supabase.rpc('create_user_profile', {
-          p_user_id: data.user.id,
-          p_user_email: formData.email,
-          p_user_first_name: formData.firstName,
-          p_user_last_name: formData.lastName
-        });
-
-        if (profileError) {
-          console.error('Błąd tworzenia profilu:', profileError);
-          // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
-          await supabase.auth.admin.deleteUser(data.user.id);
-          throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
-        }        
-        console.log('Profil użytkownika utworzony pomyślnie!');
+        // Profil użytkownika jest automatycznie tworzony przez trigger handle_new_user
+        // po pomyślnej rejestracji w auth.users
+        console.log('Użytkownik zarejestrowany pomyślnie!');
         
         // Nie musimy ręcznie ustawiać użytkownika - robi to AuthContext
         // Przekierowanie do strony głównej
