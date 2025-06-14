@@ -289,7 +289,7 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
           ))}
           <Button
             type="button"
-            variant="outlined"
+            $variant="outlined"
             onClick={handleAddAddress}
             disabled={isFormDisabled}
           >
@@ -305,7 +305,7 @@ const DoctorForm: React.FC<DoctorFormProps> = ({
       <ButtonGroup>
         <Button 
           type="button" 
-          variant="outlined" 
+          $variant="outlined" 
           onClick={onCancel}
           disabled={isFormDisabled}
         >

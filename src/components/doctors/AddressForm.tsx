@@ -107,7 +107,7 @@ const AddressForm: React.FC<AddressFormProps> = ({
       {onRemove && (
         <Button
           type="button"
-          variant="text"
+          $variant="text"
           onClick={onRemove}
           disabled={disabled}
         >

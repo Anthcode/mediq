@@ -50,7 +50,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
   try {
     const completion = await openaiClient.chat.completions.create({
   
-      model: "meta-llama/llama-4-scout:free",
+      model: "google/gemini-2.0-flash-exp:free",
             messages: [
         {
           role: "system",
@@ -74,7 +74,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
         }
       ],
       temperature: 0,
-      max_tokens: 800
+     // max_tokens: 800
       
     });
    
@@ -83,7 +83,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
       throw new Error('Otrzymano pustą odpowiedź od API');
     }
     
-    // Sprawdź czy odpowiedź została obcięta
+   // Sprawdź czy odpowiedź została obcięta
 const finishReason = completion.choices[0].finish_reason;
 if (finishReason === 'length') {
   console.warn('Odpowiedź została obcięta z powodu limitu tokenów');
@@ -110,7 +110,7 @@ if (!cleanContent.endsWith('}')) {
   }
 }
 
-    const result = JSON.parse(content) as HealthQueryAnalysis;
+    const result = JSON.parse(cleanContent) as HealthQueryAnalysis;
     
     // Walidacja i korekta wartości matchPercentage
     result.specialtyMatches = result.specialtyMatches.map(match => {

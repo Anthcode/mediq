@@ -218,7 +218,7 @@ const DoctorDetail: React.FC<DoctorDetailProps> = ({ doctor }) => {
           
           <ButtonGroup>
             <Button $fullWidth>Umów wizytę</Button>
-            <Button variant="outlined" $fullWidth>Kontakt z gabinetem</Button>
+            <Button $variant="outlined" $fullWidth>Kontakt z gabinetem</Button>
           </ButtonGroup>
         </InfoCard>
       </SideSection>

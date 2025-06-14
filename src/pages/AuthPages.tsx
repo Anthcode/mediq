@@ -262,7 +262,7 @@ export const LoginPage: React.FC = () => {
           <Button 
             as={Link} 
             to="/signup" 
-            variant="outlined" 
+            $variant="outlined" 
             $fullWidth
           >
             Utwórz konto
