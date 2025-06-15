@@ -45,12 +45,12 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
   Zwróć listę zidentyfikowanych objawów oraz 3 najlepiej dopasowane specjalizacje.
   Dla każdej specjalizacji podaj procentowe dopasowanie jako liczbę od 60 do 100.
   Dla każdej specjalizacji podaj krótkie uzasadnienie, dlaczego jest odpowiednia dla opisanych objawów.
-  `;
-     // model: "gpt-4o-mini",
+  Nie stawiaj diagnozy, nie udzielaj porad medycznych ani nie sugeruj leczenia.`;
+     
   try {
     const completion = await openaiClient.chat.completions.create({
   
-      model: "google/gemini-2.0-flash-exp:free",
+      model: "google/gemma-3-27b-it:free",
             messages: [
         {
           role: "system",

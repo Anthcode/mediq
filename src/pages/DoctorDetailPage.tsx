@@ -88,7 +88,7 @@ const DoctorDetailPage: React.FC = () => {
     <DetailPageContainer>
       <Container $maxWidth="md">
         <BackButton 
-          variant="text" 
+          $variant="text" 
           onClick={() => navigate(-1)}
         >
           <ArrowLeft size={18} style={{ marginRight: '4px' }} />

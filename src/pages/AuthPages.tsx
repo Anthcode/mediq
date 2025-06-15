@@ -7,6 +7,7 @@ import { Container } from '../components/common/Container';
 import { Button } from '../components/common/Button';
 import { Input, Label, FormGroup, InputError } from '../components/common/Input';
 import { supabase } from '../lib/supabase';
+import { RegistrationSuccess } from '../components/common/RegistrationSucces'
 
 const AuthContainer = styled.div`
   display: flex;
@@ -275,7 +276,6 @@ export const LoginPage: React.FC = () => {
 };
 
 export const SignupPage: React.FC = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: '',
@@ -284,6 +284,9 @@ export const SignupPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<AuthError>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+
   
   const validateForm = (): boolean => {
     const newErrors: AuthError = {};
@@ -329,10 +332,10 @@ export const SignupPage: React.FC = () => {
   };
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setIsLoading(true);
+    // Sprawdzenie poprawności formularza
     if (!validateForm()) return;
     
-    setIsLoading(true);
     
     try {
       // 1. Próba utworzenia konta użytkownika
@@ -346,32 +349,16 @@ export const SignupPage: React.FC = () => {
           }
         }
       });
-        
-      if (error) {
+          if (error) {
         throw new Error(error.message);
       }
       
-      if (data.user) {
-        // 2. Utworzenie rekordu w tabeli profiles
-        console.log('Tworzenie profilu użytkownika...');
-        const { error: profileError } = await supabase.rpc('create_user_profile', {
-          p_user_id: data.user.id,
-          p_user_email: formData.email,
-          p_user_first_name: formData.firstName,
-          p_user_last_name: formData.lastName
-        });
+     if (data.user && !data.user.email_confirmed_at) {
+        setRegisteredEmail(formData.email);
+        setRegistrationSuccess(true);
+        console.log('Rejestracja pomyślna, przekierowywanie...');
+        // Przekierowanie do strony sukcesu rejestracji
 
-        if (profileError) {
-          console.error('Błąd tworzenia profilu:', profileError);
-          // W przypadku błędu przy tworzeniu profilu, próbujemy usunąć utworzone konto
-          await supabase.auth.admin.deleteUser(data.user.id);
-          throw new Error('Nie udało się utworzyć profilu użytkownika: ' + profileError.message);
-        }        
-        console.log('Profil użytkownika utworzony pomyślnie!');
-        
-        // Nie musimy ręcznie ustawiać użytkownika - robi to AuthContext
-        // Przekierowanie do strony głównej
-        navigate('/');
       }
     } catch (error) {
       console.error('Błąd rejestracji:', error);
@@ -382,7 +369,11 @@ export const SignupPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
+
+  if (registrationSuccess) {
+    return <RegistrationSuccess email={registeredEmail} />;
+  }
+
   return (
     <AuthContainer>
       <Container $maxWidth="xs">

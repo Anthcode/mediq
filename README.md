@@ -16,7 +16,7 @@ MedIQ to innowacyjna platforma internetowa wykorzystująca sztuczną inteligencj
 
 Kluczowe funkcje obejmują:
 
-- Analiza objawów oparta na AI z wykorzystaniem modelu OpenAI GPT-4o-mini 🤖
+- Analiza objawów oparta na AI z wykorzystaniem modelu Google: Gemma 3 27 🤖
 - Kompleksowe funkcje CRUD do zarządzania profilami lekarzy 🏥
 - Uwierzytelnianie użytkowników i zarządzanie profilami z wykorzystaniem Supabase 🔐
 - Responsywny design zorientowany na urządzenia mobilne zapewniający dostępność na wszystkich urządzeniach 📱
@@ -43,13 +43,21 @@ Kluczowe funkcje obejmują:
    npm install
    ```
 
-3. **Uruchomienie serwera deweloperskiego:**
+3. **Konfiguracja zmiennych środowiskowych:**
+
+   ```sh
+   cp .env .env.local
+   ```
+   
+   Następnie edytuj `.env.local` i wstaw rzeczywiste klucze API. Zobacz [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) po więcej szczegółów.
+
+4. **Uruchomienie serwera deweloperskiego:**
 
    ```sh
    npm run dev
    ```
 
-4. **Otwarcie przeglądarki:**
+5. **Otwarcie przeglądarki:**
    Odwiedź [http://localhost:3000](http://localhost:3000) lub port określony przez Vite.
 
 ## Dostępne skrypty
