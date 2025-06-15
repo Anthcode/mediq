@@ -50,7 +50,7 @@ export async function analyzeHealthQueryWithSpecialties(query: string): Promise<
   try {
     const completion = await openaiClient.chat.completions.create({
   
-      model: "mistralai/mistral-small-3.1-24b-instruct:free",
+      model: "google/gemma-3-27b-it:free",
             messages: [
         {
           role: "system",

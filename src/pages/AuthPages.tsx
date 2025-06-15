@@ -7,6 +7,7 @@ import { Container } from '../components/common/Container';
 import { Button } from '../components/common/Button';
 import { Input, Label, FormGroup, InputError } from '../components/common/Input';
 import { supabase } from '../lib/supabase';
+import { RegistrationSuccess } from '../components/common/RegistrationSucces'
 
 const AuthContainer = styled.div`
   display: flex;
@@ -275,7 +276,6 @@ export const LoginPage: React.FC = () => {
 };
 
 export const SignupPage: React.FC = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: '',
@@ -284,6 +284,9 @@ export const SignupPage: React.FC = () => {
   });
   const [errors, setErrors] = useState<AuthError>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+
   
   const validateForm = (): boolean => {
     const newErrors: AuthError = {};
@@ -329,10 +332,10 @@ export const SignupPage: React.FC = () => {
   };
     const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setIsLoading(true);
+    // Sprawdzenie poprawności formularza
     if (!validateForm()) return;
     
-    setIsLoading(true);
     
     try {
       // 1. Próba utworzenia konta użytkownika
@@ -350,14 +353,12 @@ export const SignupPage: React.FC = () => {
         throw new Error(error.message);
       }
       
-      if (data.user) {
-        // Profil użytkownika jest automatycznie tworzony przez trigger handle_new_user
-        // po pomyślnej rejestracji w auth.users
-        console.log('Użytkownik zarejestrowany pomyślnie!');
-        
-        // Nie musimy ręcznie ustawiać użytkownika - robi to AuthContext
-        // Przekierowanie do strony głównej
-        navigate('/');
+     if (data.user && !data.user.email_confirmed_at) {
+        setRegisteredEmail(formData.email);
+        setRegistrationSuccess(true);
+        console.log('Rejestracja pomyślna, przekierowywanie...');
+        // Przekierowanie do strony sukcesu rejestracji
+
       }
     } catch (error) {
       console.error('Błąd rejestracji:', error);
@@ -368,7 +369,11 @@ export const SignupPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-  
+
+  if (registrationSuccess) {
+    return <RegistrationSuccess email={registeredEmail} />;
+  }
+
   return (
     <AuthContainer>
       <Container $maxWidth="xs">

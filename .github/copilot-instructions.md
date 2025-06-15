@@ -61,3 +61,4 @@ Aplikacja MedIQ łączy pacjentów z odpowiednimi lekarzami na podstawie analizy
 - Przestrzegaj wytycznych Supabase dotyczących bezpieczeństwa i wydajności.
 - Korzystaj z instancji klienta Supabase zdefiniowanej w `src/lib/supabase.ts`, pamiętając o używaniu typu `SupabaseClient` z tego pliku zamiast importowania go bezpośrednio z `@supabase/supabase-js`.
 - Wykorzystuj **Zod** do walidacji danych przekazywanych między frontendem a backendem.
+ 
