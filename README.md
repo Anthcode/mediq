@@ -77,10 +77,6 @@ Kluczowe funkcje obejmują:
 ### Testy end-to-end i komponentów (Cypress)
 
 - **`npm run cypress`**: Otwiera Cypress Test Runner w trybie interaktywnym.
-- **`npm run cypress:run`**: Uruchamia testy e2e w trybie headless.
-- **`npm run cypress:component`**: Otwiera Cypress do testowania komponentów.
-- **`npm run cypress:run:component`**: Uruchamia testy komponentów w trybie headless.
-- **`npm run test:e2e`**: Uruchamia serwer deweloperski i wykonuje testy e2e automatycznie.
 
 ### Kompleksowe testowanie
 
@@ -147,6 +143,22 @@ Projekt zawiera kompleksowy zestaw testów wykorzystujących **Vitest** i **Reac
 - Automatyczne czyszczenie po testach
 - Definicja zmiennych środowiskowych dla testów
 
+### Testy End-to-End (`cypress/e2e/`)
+
+**Główny Przepływ Użytkownika** (`main-user-flow.cy.ts`) - Kompleksowy test pokrywający:
+
+- **Uwierzytelnianie**: Testowanie logowania użytkownika z walidacją danych
+- **Wyszukiwanie AI**: Wprowadzanie objawów i weryfikacja analizy sztucznej inteligencji
+- **Integracja z OpenAI**: Mockowanie i testowanie odpowiedzi API do analizy symptomów
+- **Rekomendacje lekarzy**: Weryfikacja listy rekomendowanych specjalistów
+- **Szczegóły lekarza**: Testowanie nawigacji do profilu lekarza i wyświetlania informacji
+- **Przepływ nawigacji**: Weryfikacja przechodzenia między stronami
+- **Wylogowywanie**: Testowanie zakończenia sesji użytkownika
+- **Mockowanie danych**: Użycie fikstur testowych dla stabilnych wyników
+- **Obsługa błędów**: Ignorowanie błędów cross-origin podczas testów
+
+Test symuluje pełny przepływ użytkownika od logowania, przez wyszukiwanie lekarzy na podstawie objawów, aż po przeglądanie szczegółów i wylogowanie, zapewniając działanie wszystkich kluczowych funkcjonalności aplikacji.
+
 ### Testy Komponentów Cypress (`cypress/component/`)
 
 **Component Testing** - Testy komponentów w izolacji:
@@ -166,6 +178,8 @@ Testy obejmują:
 - ✅ Obsługę błędów i edge cases
 - ✅ Mockowanie zależności zewnętrznych
 - ✅ Testowanie funkcjonalności styled-components
+- ✅ Pełny przepływ użytkownika end-to-end
+- ✅ Integrację między komponentami w rzeczywistym środowisku
 
 ### Funkcje poza zakresem
 
