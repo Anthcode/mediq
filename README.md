@@ -1,203 +1,236 @@
-# MedIQ 🚀
+# MedIQ - Inteligentna Platforma Łącząca Pacjentów z Lekarzami
 
-## Spis treści
+<div align="center">
+  <img src="public/logo.png" alt="MedIQ Logo" width="200"/>
+  
+  [![Deploy to Cloudflare Pages](https://github.com/anthcode/mediq/actions/workflows/deploy.yml/badge.svg)](https://github.com/anthcode/mediq/actions/workflows/deploy.yml)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  
+  **[Demo na żywo](https://56168c6e.mediq.pages.dev/)**
+</div>
 
-- Opis projektu 📋
-- Stos technologiczny 🛠️
-- Uruchomienie lokalne 🚀
-- Dostępne skrypty ⚙️
-- Zakres projektu 🔍
-- Status projektu 📈
-- Licencja 📜
+## 📋 O projekcie
 
-## Opis projektu
+MedIQ to nowoczesna platforma internetowa wykorzystująca sztuczną inteligencję do analizy symptomów pacjentów i łączenia ich z odpowiednimi lekarzami specjalistami. Aplikacja eliminuje niepewność w wyborze specjalizacji medycznej poprzez inteligentną analizę opisanych objawów.
 
-MedIQ to innowacyjna platforma internetowa wykorzystująca sztuczną inteligencję do analizy objawów pacjentów i łączenia użytkowników z najbardziej odpowiednimi specjalistami medycznymi. Dzięki prostemu opisowi swoich dolegliwości, pacjenci otrzymują spersonalizowane rekomendacje i szczegółowe profile lekarzy, co znacznie upraszcza proces znalezienia właściwego specjalisty.
+### 🎯 Główne funkcjonalności
 
-Kluczowe funkcje obejmują:
+- **🤖 Analiza AI symptomów** - wykorzystuje model Google Gemma 3 27B (przez OpenRouter API) do analizy objawów
+- **🔍 Inteligentne wyszukiwanie lekarzy** - dopasowanie specjalistów na podstawie analizy AI
+- **👤 System autentykacji** - pełny system rejestracji i logowania użytkowników
+- **🏥 Panel administracyjny** - kompleksowy CRUD dla zarządzania lekarzami
+- **📊 Historia wyszukiwań** - zapisywanie i przeglądanie historii zapytań użytkownika
+- **📱 Responsywny design** - pełna optymalizacja dla urządzeń mobilnych
+- **🔒 System ról i uprawnień** - różne poziomy dostępu (user, doctor, moderator, administrator)
 
-- Analiza objawów oparta na AI z wykorzystaniem modelu Google: Gemma 3.27 🤖
-- Kompleksowe funkcje CRUD do zarządzania profilami lekarzy 🏥
-- Uwierzytelnianie użytkowników i zarządzanie profilami z wykorzystaniem Supabase 🔐
-- Responsywny design zorientowany na urządzenia mobilne zapewniający dostępność na wszystkich urządzeniach 📱
-- Zautomatyzowane testy i pipeline CI/CD zapewniające jakość kodu i efektywność wdrażania ✅
+## 🖼️ Screenshoty
 
-## Stos technologiczny
+### Strona główna
 
-- **Frontend:** React 18+, TypeScript, Vite, React Router v6, Styled Components, Tailwind CSS, Lucide-react (ikony) oraz React hooks (useState, useEffect, itp.).
-- **Backend:** Supabase do uwierzytelniania, PostgreSQL jako baza danych, Supabase Storage do przechowywania mediów oraz integracja z OpenAI API do analizy zapytań zdrowotnych.
-- **DevOps i Testy:** GitHub Actions do CI/CD, Vitest i React Testing Library do testów jednostkowych, Cypress do testów end-to-end i komponentów, ESLint i Prettier do zapewnienia jakości kodu.
+![Strona główna - wyszukiwarka symptomów](screenshots/home.png)
+*Intuicyjny interfejs wyszukiwania z polem do opisu symptomów*
 
-## Uruchomienie lokalne
+### Wyniki wyszukiwania z analizą AI
 
-1. **Klonowanie repozytorium:**
+![Analiza AI i lista lekarzy](screenshots/search-results.png)
+*Panel analizy AI pokazujący zidentyfikowane objawy i sugerowane specjalizacje wraz z listą dopasowanych lekarzy*
 
-   ```sh
-   git clone https://github.com/your-username/mediq.git
-   cd mediq
-   ```
+### Profil lekarza
 
-2. **Instalacja zależności:**
+![Szczegóły profilu lekarza](screenshots/doctor-detail.png)
+*Kompletne informacje o lekarzu wraz z danymi kontaktowymi*
 
-   ```sh
-   npm install
-   ```
+### Panel użytkownika
 
-3. **Konfiguracja zmiennych środowiskowych:**
+![Profil użytkownika z historią wyszukiwań](screenshots/user-profile.png)
+*Zarządzanie profilem i przeglądanie historii wyszukiwań*
 
-   ```sh
-   cp .env .env.local
-   ```
+### Panel administracyjny
 
-4. **Uruchomienie serwera deweloperskiego:**
+![Panel zarządzania lekarzami](screenshots/admin-panel.png)
+*Kompleksowy system CRUD do zarządzania bazą lekarzy*
 
-   ```sh
-   npm run dev
-   ```
+### Formularz dodawania/edycji lekarza
 
-5. **Otwarcie przeglądarki:**
-   Odwiedź [http://localhost:3000](http://localhost:3000) lub port określony przez Vite.
+![Formularz lekarza](screenshots/doctor-form.png)
+*Intuicyjny formularz z walidacją danych*
 
-## Dostępne skrypty
+## 🚀 Technologie
 
-### Podstawowe komendy deweloperskie
+### Frontend
 
-- **`npm run dev`**: Uruchamia serwer deweloperski Vite z hot module replacement.
-- **`npm run build`**: Buduje aplikację w wersji produkcyjnej.
-- **`npm run preview`**: Serwuje zbudowaną wersję produkcyjną lokalnie.
-- **`npm run lint`**: Sprawdza problemy z jakością kodu przy użyciu ESLint.
+- **React 18+** z TypeScript
+- **Vite** - szybki bundler
+- **Styled Components** - stylowanie komponentów
+- **React Router v6** - routing
+- **React Context API** - zarządzanie stanem
+- **Lucide React** - ikony
 
-### Testy jednostkowe i integracyjne (Vitest)
+### Backend
 
-- **`npm test`**: Uruchamia wszystkie testy jednostkowe jednokrotnie.
-- **`npm run test:watch`**: Uruchamia testy w trybie obserwacji (watch mode).
-- **`npm run test:ui`**: Otwiera interfejs webowy Vitest do interaktywnego uruchamiania testów.
-- **`npm run test:coverage`**: Uruchamia testy z raportem pokrycia kodu.
+- **Supabase** - kompleksowe rozwiązanie backendowe
+  - PostgreSQL - baza danych
+  - Autentykacja użytkowników
+  - Row Level Security (RLS)
+  - Storage dla plików
 
-### Testy end-to-end i komponentów (Cypress)
+### AI & Integracje
 
-- **`npm run cypress`**: Otwiera Cypress Test Runner w trybie interaktywnym.
+- **OpenRouter API** - dostęp do modelu AI
+- **Google Gemma 3 27B** - model językowy do analizy symptomów
 
-### Kompleksowe testowanie
+### DevOps & Testy
 
-- **`npm run test:all`**: Uruchamia wszystkie testy (jednostkowe + e2e) sekwencyjnie.
+- **GitHub Actions** - CI/CD pipeline
+- **Cloudflare Pages** - hosting
+- **Jest & React Testing Library** - testy jednostkowe
+- **Cypress** - testy E2E
+- **ESLint & Prettier** - jakość kodu
 
-## Zakres projektu
+## 📁 Struktura projektu
 
-### Funkcje w zakresie
+```
+mediq/
+├── .github/
+│   └── workflows/           # GitHub Actions workflows
+├── cypress/                 # Testy E2E
+│   ├── e2e/
+│   ├── fixtures/
+│   └── support/
+├── public/                  # Zasoby statyczne
+├── src/
+│   ├── __tests__/          # Testy jednostkowe
+│   ├── components/         # Komponenty React
+│   │   ├── admin/         # Komponenty panelu admina
+│   │   ├── common/        # Wspólne komponenty UI
+│   │   ├── doctors/       # Komponenty lekarzy
+│   │   ├── layout/        # Komponenty układu
+│   │   ├── profile/       # Komponenty profilu
+│   │   └── search/        # Komponenty wyszukiwania
+│   ├── contexts/          # React Contexts
+│   ├── hooks/             # Custom hooks
+│   ├── lib/               # Integracje (Supabase, OpenAI)
+│   ├── pages/             # Komponenty stron
+│   ├── services/          # Serwisy biznesowe
+│   ├── styles/            # Style globalne i theme
+│   ├── types/             # Definicje TypeScript
+│   └── utils/             # Funkcje pomocnicze
+├── supabase/
+│   └── migrations/        # Migracje bazy danych
+└── [pliki konfiguracyjne]
+```
 
-- Wyszukiwanie lekarzy oparte na AI na podstawie objawów wprowadzonych przez użytkownika.
-- Pełne operacje CRUD do zarządzania profilami lekarzy (tworzenie, edycja, przeglądanie i usuwanie).
-- Uwierzytelnianie użytkowników i zarządzanie sesjami z wykorzystaniem Supabase.
-- Responsywny interfejs użytkownika zorientowany na urządzenia mobilne, zaprojektowany zgodnie z wytycznymi WCAG 2.1 AA.
-- Zautomatyzowane testy (jednostkowe, integracyjne i e2e) oraz pipeline CI/CD poprzez GitHub Actions.
-- Mechanizmy cache'owania do optymalizacji zapytań API.
-- Optymalizacja wydajności z wykorzystaniem technik takich jak lazy loading i React.memo.
+## 🛠️ Instalacja i uruchomienie
 
-## Testy Jednostkowe i Integracyjne
+### Wymagania
 
-Projekt zawiera kompleksowy zestaw testów wykorzystujących **Vitest** i **React Testing Library**:
+- Node.js 18+
+- npm lub yarn
+- Konto Supabase
+- Klucz API OpenRouter
 
-### Testy Komponentów UI (`src/__tests__/components/`)
+### Kroki instalacji
 
-**Button Component** - Pełny zestaw testów sprawdzających:
+1. **Sklonuj repozytorium**
 
-- Renderowanie komponentu z różnymi propsami
-- Obsługę eventów (onClick, hover, disabled)
-- Warianty stylowania (primary, secondary, outlined, text, danger)
-- Różne rozmiary przycisków (small, medium, large)
-- Właściwości układu ($fullWidth)
-- Integrację z systemem motywów Styled Components
-- Responsywność i interakcje z użytkownikiem
-- Wykorzystanie ThemeProvider i dostęp do kolorów motywu
-- Testowanie CSS helpers i styled-components features
-- Kompatybilność z różnymi elementami HTML (as prop)
+```bash
+git clone https://github.com/anthcode/mediq.git
+cd mediq
+```
 
-### Testy Serwisów Backend (`src/__tests__/services/`)
+2. **Zainstaluj zależności**
 
-**DoctorService** - Testy integracji z Supabase:
+```bash
+npm install
+```
 
-- Pobieranie listy lekarzy (`getDoctors()`)
-- Pobieranie pojedynczego lekarza po ID (`getDoctorById()`)
-- Obsługa błędów z bazy danych
-- Mockowanie wywołań Supabase
-- Walidacja struktury zapytań SQL
-- Testowanie relacji z tabelami powiązanymi (addresses, ratings)
+3. **Skonfiguruj zmienne środowiskowe**
 
-### Testy Integracji AI (`src/__tests__/lib/`)
+```bash
+cp .env.example .env
+```
 
-**OpenAI Integration** - Testy analizy symptomów:
+Wypełnij plik `.env`:
 
-- Analiza zapytań zdrowotnych (`analyzeHealthQueryWithSpecialties()`)
-- Parsowanie odpowiedzi z OpenAI API
-- Obsługa błędów API (puste odpowiedzi, błędy sieci)
-- Mockowanie zewnętrznych serwisów
-- Walidacja struktury danych wyjściowych
-- Testowanie logiki dopasowywania specjalizacji
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+VITE_OPENROUTER_API_KEY=your_openrouter_api_key
+```
 
-### Konfiguracja Testów (`src/__tests__/setup.ts`)
+4. **Uruchom migracje Supabase**
 
-- Konfiguracja środowiska testowego Vitest
-- Globalne mocki (ResizeObserver, Supabase, zmienne środowiskowe)
-- Rozszerzenia matcherów testing-library
-- Automatyczne czyszczenie po testach
-- Definicja zmiennych środowiskowych dla testów
+```bash
+npx supabase db push
+```
 
-### Testy End-to-End (`cypress/e2e/`)
+5. **Uruchom aplikację**
 
-**Główny Przepływ Użytkownika** (`main-user-flow.cy.ts`) - Kompleksowy test pokrywający:
+```bash
+npm run dev
+```
 
-- **Uwierzytelnianie**: Testowanie logowania użytkownika z walidacją danych
-- **Wyszukiwanie AI**: Wprowadzanie objawów i weryfikacja analizy sztucznej inteligencji
-- **Integracja z OpenAI**: Mockowanie i testowanie odpowiedzi API do analizy symptomów
-- **Rekomendacje lekarzy**: Weryfikacja listy rekomendowanych specjalistów
-- **Szczegóły lekarza**: Testowanie nawigacji do profilu lekarza i wyświetlania informacji
-- **Przepływ nawigacji**: Weryfikacja przechodzenia między stronami
-- **Wylogowywanie**: Testowanie zakończenia sesji użytkownika
-- **Mockowanie danych**: Użycie fikstur testowych dla stabilnych wyników
-- **Obsługa błędów**: Ignorowanie błędów cross-origin podczas testów
+Aplikacja będzie dostępna pod adresem `http://localhost:5174`
 
-Test symuluje pełny przepływ użytkownika od logowania, przez wyszukiwanie lekarzy na podstawie objawów, aż po przeglądanie szczegółów i wylogowanie, zapewniając działanie wszystkich kluczowych funkcjonalności aplikacji.
+## 🧪 Testowanie
 
-### Testy Komponentów Cypress (`cypress/component/`)
+### Testy jednostkowe
 
-**Component Testing** - Testy komponentów w izolacji:
+```bash
+npm run test
+```
 
-- Interaktywne testy komponentu Button
-- Testowanie stanów hover i focus
-- Walidacja właściwości CSS w rzeczywistym środowisku przeglądarki
-- Symulacja zdarzeń użytkownika
+### Testy E2E
 
-### Pokrycie Testowe
+```bash
+npm run test:e2e
+```
 
-Testy obejmują:
+### Pokrycie kodu
 
-- ✅ Komponenty UI i ich interakcje
-- ✅ Serwisy komunikacji z bazą danych
-- ✅ Integrację z zewnętrznymi API (OpenAI)
-- ✅ Obsługę błędów i edge cases
-- ✅ Mockowanie zależności zewnętrznych
-- ✅ Testowanie funkcjonalności styled-components
-- ✅ Pełny przepływ użytkownika end-to-end
-- ✅ Integrację między komponentami w rzeczywistym środowisku
+```bash
+npm run test:coverage
+```
 
-### Funkcje poza zakresem
+## 📦 Deployment
 
-- Funkcjonalności telemedycyny (konsultacje online).
-- Systemy rezerwacji wizyt.
-- Systemy przetwarzania płatności.
-- Kompleksowa elektroniczna dokumentacja medyczna.
-- Czat lub bezpośrednia komunikacja z lekarzami.
-- Integracja z zewnętrznymi systemami medycznymi.
-- Pełne aplikacje mobilne (tylko responsywny design web).
-- Wsparcie wielojęzyczne (tylko język polski).
-- Integracja z systemami ubezpieczeń zdrowotnych.
-- Systemy zarządzania receptami.
+Aplikacja jest automatycznie deployowana na Cloudflare Pages przy każdym push do brancha `main` poprzez GitHub Actions.
 
-## Status projektu
+### Ręczny build
 
-MedIQ jest obecnie w aktywnej fazie rozwoju jako MVP. Projekt koncentruje się na kluczowych funkcjonalnościach, w tym analizie opartej na AI, zarządzaniu lekarzami i zarządzaniu użytkownikami. Ciągłe monitorowanie wskaźników wydajności, jakości kodu i opinii użytkowników jest wdrożone, aby zapewnić szybkie i niezawodne usprawnienia.
+```bash
+npm run build
+```
 
-## Licencja
+## 👥 Konta testowe
 
-Ten projekt jest licencjonowany na podstawie licencji MIT
+Dla osób oceniających projekt dostępne są specjalne konta testowe z różnymi poziomami uprawnień. Dane dostępowe zostaną przekazane bezpośrednio przez autora projektu.
+
+## 🔒 Bezpieczeństwo
+
+- Autentykacja oparta na JWT (Supabase Auth)
+- Row Level Security (RLS) w PostgreSQL
+- Walidacja danych po stronie klienta i serwera
+- Bezpieczne przechowywanie kluczy API
+- Ochrona przed XSS i CSRF
+
+## 📈 Przyszłe funkcjonalności
+
+- **💬 System komunikacji** - czat między pacjentami a lekarzami
+- **📅 Rezerwacja wizyt** - kalendarz dostępności lekarzy
+- **⭐ System ocen i opinii** - recenzje pacjentów
+- **💳 Płatności online** - integracja z bramkami płatności
+- **📱 Aplikacja mobilna** - natywne aplikacje iOS/Android
+- **🌍 Wielojęzyczność** - wsparcie dla wielu języków
+- **📊 Panel analityczny** - statystyki dla lekarzy
+- **🔔 Powiadomienia** - przypomnienia o wizytach
+- **📄 Dokumentacja medyczna** - przechowywanie historii medycznej
+- **🏥 Integracja z NFZ** - weryfikacja uprawnień
+
+## 🤝 Autorzy
+
+Projekt stworzony jako praca zaliczeniowa w ramach kursu programowania 10xdevs.
+
+## 📄 Licencja
+
+Ten projekt jest licencjonowany na podstawie licencji MIT - zobacz plik [LICENSE](LICENSE) dla szczegółów.
