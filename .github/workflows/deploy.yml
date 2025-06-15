@@ -97,7 +97,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: mediq-app # Zmień na nazwę swojego projektu w Cloudflare
+          projectName: mediq # Zmień na nazwę swojego projektu w Cloudflare
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
