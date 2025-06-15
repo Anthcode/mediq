@@ -1,5 +1,4 @@
-/* @refresh reset */
-import React, { createContext, useState, useEffect, ReactNode, useRef } from "react";
+import { useState, useEffect, ReactNode, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { User, UserRole } from "../types/auth";
 import {
@@ -8,16 +7,7 @@ import {
   LoadingText,
 } from "../components/common/LoadingSpinner";
 import { User as SupabaseUser } from "@supabase/supabase-js";
-
-interface AuthContextType {
-  user: User | null;
-  setUser: React.Dispatch<React.SetStateAction<User | null>>;
-  isLoading: boolean;
-  error: string | null;
-}
-
-// Context nie jest komponentem React, więc oznaczamy go dla Fast Refresh
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import { AuthContext } from "./AuthContext.context";
 
 // Typ pomocniczy do walidacji roli
 const isValidRole = (role: unknown): role is UserRole => {
@@ -41,7 +31,7 @@ const mapSupabaseUser = async (supabaseUser: SupabaseUser): Promise<User> => {
       .eq("user_id", supabaseUser.id)
       .single();
 
-    console.log("Raw user role data:", userRole);
+    //console.log("Raw user role data:", userRole);
 
     if (roleError) {
       console.error("Error fetching role:", roleError);
@@ -54,14 +44,14 @@ const mapSupabaseUser = async (supabaseUser: SupabaseUser): Promise<User> => {
     }
 
     // Sprawdź dokładnie typ roli
-    console.log("Role type check:", {
-      role: userRole.role,
-      typeofRole: typeof userRole.role,
-      validRoles: ["administrator", "doctor", "moderator", "user"],
-      isValid: ["administrator", "doctor", "moderator", "user"].includes(
-        userRole.role
-      ),
-    });
+    // console.log("Role type check:", {
+    //   role: userRole.role,
+    //   typeofRole: typeof userRole.role,
+    //   validRoles: ["administrator", "doctor", "moderator", "user"],
+    //   isValid: ["administrator", "doctor", "moderator", "user"].includes(
+    //     userRole.role
+    //   ),
+    // });
 
     // Upewnij się, że rola jest poprawna
     if (!isValidRole(userRole.role)) {
@@ -78,7 +68,7 @@ const mapSupabaseUser = async (supabaseUser: SupabaseUser): Promise<User> => {
       role: userRole.role as UserRole,
     };
 
-    console.log("Mapped user with role:", mappedUser);
+    // console.log("Mapped user with role:", mappedUser);
     return mappedUser;
   } catch (error) {
     console.error("Error mapping user:", error);
@@ -87,7 +77,7 @@ const mapSupabaseUser = async (supabaseUser: SupabaseUser): Promise<User> => {
 };
 
 // Provider komponent - kompatybilny z Fast Refresh
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -133,7 +123,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       }
     };
 
-    initializeAuth();    const {
+    initializeAuth();
+    const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
@@ -149,7 +140,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         // Dla TOKEN_REFRESHED zawsze ignoruj jeśli mamy już użytkownika
         if (event === "TOKEN_REFRESHED") {
           return;
-        }        // Dla SIGNED_IN sprawdź czy już mamy tego samego użytkownika
+        } // Dla SIGNED_IN sprawdź czy już mamy tego samego użytkownika
         if (event === "SIGNED_IN" && session?.user) {
           const sessionUserId = session.user.id;
           const currentUser = userRef.current;
@@ -160,29 +151,24 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             return;
           }
 
-          // Tylko tutaj ustawiamy loading i mapujemy użytkownika
-          setIsLoading(true);
-
           const mappedUser = await mapSupabaseUser(session.user);
 
           if (!isValidRole(mappedUser.role)) {
-            throw new Error(`Invalid role after auth change: ${mappedUser.role}`);
+            throw new Error(
+              `Invalid role after auth change: ${mappedUser.role}`
+            );
           }
 
           setUser(mappedUser);
           setError(null);
-          setIsLoading(false);
         } else if (event === "SIGNED_OUT") {
-          setIsLoading(true);
           setUser(null);
           setError(null);
-          setIsLoading(false);
         }
       } catch (error) {
         console.error("Auth state change error:", error);
         setError(error instanceof Error ? error.message : "Unknown error");
         setUser(null);
-        setIsLoading(false);
       }
     });
 
@@ -208,7 +194,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       </LoadingContainer>
     );
   }
-
   return (
     <AuthContext.Provider value={{ user, setUser, isLoading, error }}>
       {children}
@@ -216,6 +201,5 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   );
 };
 
-// Eksporty - Context oddzielnie od komponentów dla Fast Refresh
-export { AuthContext };
-export type { AuthContextType };
+// Eksportujemy tylko provider jako domyślny eksport dla Fast Refresh
+export default AuthProvider;

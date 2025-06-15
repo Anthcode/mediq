@@ -53,6 +53,19 @@ export const theme = {
       secondary: '#757575',
       disabled: '#9E9E9E',
       hint: '#9E9E9E'
+    },
+    ai: {
+      primary: '#8B5CF6',
+      secondary: '#A855F7',
+      accent: '#EC4899',
+      tertiary: '#9333EA',
+      light: '#F3E8FF',
+      contrastText: '#FFFFFF',
+      gradient: {
+        primary: 'linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #9333EA 100%)',
+        secondary: 'linear-gradient(135deg, #EC4899 0%, #8B5CF6 100%)',
+        subtle: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.05) 100%)'
+      }
     }
   },
   typography: {
@@ -79,6 +92,16 @@ export const theme = {
     short: '0.2s ease-in-out',
     medium: '0.3s ease-in-out',
     long: '0.5s ease-in-out'
+  },
+
+  animations: {
+    ai: {
+      glow: 'ai-glow 2s ease-in-out infinite',
+      pulse: 'ai-pulse 1.5s ease-in-out infinite',
+      shimmer: 'ai-shimmer 3s ease-in-out infinite',
+      brainPulse: 'ai-brain-pulse 1.5s ease-in-out infinite',
+      dotWave: 'ai-dot-wave 1.5s ease-in-out infinite'
+    }
   },
   breakpoints: {
     xs: '0px',

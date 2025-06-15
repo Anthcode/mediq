@@ -57,6 +57,19 @@ declare module 'styled-components' {
         disabled: string;
         hint: string;
       };
+      ai: {
+        primary: string;
+        secondary: string;
+        accent: string;
+        tertiary: string;
+        light: string;
+        contrastText: string;
+        gradient: {
+          primary: string;
+          secondary: string;
+          subtle: string;
+        };
+      };
     };
     typography: {
       fontFamily: string;
@@ -82,6 +95,15 @@ declare module 'styled-components' {
       short: string;
       medium: string;
       long: string;
+    };
+     animations: {
+      ai: {
+        glow: string;
+        pulse: string;
+        shimmer: string;
+        brainPulse: string;
+        dotWave: string;
+      };
     };
     breakpoints: {
       xs: string;

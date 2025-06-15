@@ -94,7 +94,7 @@ export class UserService {
     }
 
     try {
-      console.log('Pobieranie profilu dla użytkownika:', user.id);
+      //console.log('Pobieranie profilu dla użytkownika:', user.id);
       
       // Pobieramy podstawowe dane profilu z tabeli profiles
       let profileResult = await this.supabase
@@ -177,8 +177,7 @@ export class UserService {
         }
       }
       
-      console.log('Pobrano dane profilu:', profileResult.data, 'oraz role:', roleResult.data);
-      
+         
       // Łączymy dane profilu z rolą z tabeli user_roles
       return {
         ...profileResult.data,
@@ -251,7 +250,7 @@ export class UserService {
         userToCheck = user.id;
       }
       
-      console.log('Sprawdzanie profilu użytkownika:', userToCheck);
+      //console.log('Sprawdzanie profilu użytkownika:', userToCheck);
       
       // 2. Sprawdź czy profil istnieje
       const { data: profileData, error: profileError } = await this.supabase
@@ -273,7 +272,7 @@ export class UserService {
         }
         
         // Utwórz nowy profil
-        console.log('Tworzenie nowego profilu dla użytkownika:', data.user.id);
+       // console.log('Tworzenie nowego profilu dla użytkownika:', data.user.id);
         await this.createDefaultProfile(
           data.user.id,
           data.user.email || '',
@@ -282,7 +281,7 @@ export class UserService {
         );
         console.log('Nowy profil został utworzony pomyślnie');
       } else {
-        console.log('Profil użytkownika istnieje:', profileData);
+       // console.log('Profil użytkownika istnieje:', profileData);
       }
       
       // 4. Sprawdź czy rola istnieje
@@ -310,7 +309,7 @@ export class UserService {
           console.log('Utworzono domyślną rolę dla użytkownika');
         }
       } else {
-        console.log('Rola użytkownika istnieje:', roleData);
+        //console.log('Rola użytkownika istnieje:', roleData);
       }
       
     } catch (error) {

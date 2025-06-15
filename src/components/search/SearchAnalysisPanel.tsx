@@ -123,7 +123,7 @@ const SearchAnalysisPanel: React.FC<SearchAnalysisPanelProps> = ({
 }) => {
   return (
     <PanelContainer>
-      <PanelTitle>Analiza sztucznej inteligencji</PanelTitle>
+      <PanelTitle>✨ Analiza sztucznej inteligencji</PanelTitle>
       <QueryText>"{query}"</QueryText>
       
       {symptoms.length > 0 && (

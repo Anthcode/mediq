@@ -78,6 +78,59 @@ export const GlobalStyles = createGlobalStyle`
     height: auto;
   }
 
+  /* AI Animations */
+  @keyframes ai-glow {
+    0%, 100% { 
+      box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
+    }
+    50% { 
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+    }
+  }
+
+  @keyframes ai-pulse {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% { 
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-shimmer {
+    0% { 
+      transform: translateX(-100%); 
+    }
+    100% { 
+      transform: translateX(100%); 
+    }
+  }
+
+  @keyframes ai-brain-pulse {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    50% { 
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ai-dot-wave {
+    0%, 20% { 
+      opacity: 0; 
+    }
+    50% { 
+      opacity: 1; 
+    }
+    100% { 
+      opacity: 0; 
+    }
+  }
+
   ::selection {
     background-color: ${theme.colors.primary.light};
     color: ${theme.colors.primary.contrastText};

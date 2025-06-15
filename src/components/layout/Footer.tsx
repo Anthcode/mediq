@@ -9,6 +9,7 @@ const FooterContainer = styled.footer`
   margin-top: auto;
   border-top: 1px solid ${theme.colors.neutral.light};
   min-height: 50px;
+  font-size: 0.875rem;
   display: flex;
   align-items: center;
   box-shadow: 0 -2px 4px -1px rgba(0, 0, 0, 0.03);
@@ -46,7 +47,7 @@ const FooterLogo = styled.div`
 `;
 
 const LogoText = styled.span`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   color: ${theme.colors.text.primary};
   letter-spacing: -0.3px;

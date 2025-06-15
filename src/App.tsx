@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { ThemeProvider } from 'styled-components';
 import { GlobalStyles } from './styles/GlobalStyles';
 import { theme } from './styles/theme';
-import { AuthProvider } from './contexts/AuthContext';
+import AuthProvider from './contexts/AuthContext';
 import { useAuth } from './hooks/useAuth';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';

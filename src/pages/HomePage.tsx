@@ -3,10 +3,10 @@ import styled, { keyframes } from 'styled-components';
 import { Container } from '../components/common/Container';
 import { theme } from '../styles/theme';
 import SearchBar from '../components/search/SearchBar';
-import DoctorsList from '../components/doctors/DoctorsList';
 import SearchAnalysisPanel from '../components/search/SearchAnalysisPanel';
 import { SearchResult, SpecialtyMatch } from '../types/search';
-import { LoadingSpinner, LoadingContainer } from '../components/common/LoadingSpinner';
+import { DoctorRecommendations } from '../components/doctors/DoctorRecommendations';
+import {AILoadingIndicator} from '../components/common/AILoadingIndicator';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
@@ -222,8 +222,9 @@ const HomePage: React.FC = () => {
           specialties={searchResult.analysis.suggested_specialties.map(s => s.name)}
           specialtyMatches={specialtyMatches}
         />
-        
-        <DoctorsList doctors={searchResult.doctors}  />
+{/*         
+        <DoctorsList doctors={searchResult.doctors}  /> */}
+         <DoctorRecommendations doctors={searchResult.doctors} />
       </ResultsContainer>
     );
   };
@@ -259,11 +260,7 @@ const HomePage: React.FC = () => {
       <Container>
         {error && <ErrorMessage>{error}</ErrorMessage>}
         
-        {isLoading && (
-          <LoadingContainer>
-            <LoadingSpinner size="large" />
-          </LoadingContainer>
-        )}
+        {isLoading && <AILoadingIndicator message="AI analizuje Twoje objawy..." />}
         
         {!isLoading && searchResult && user && renderSearchResults()}
       </Container>

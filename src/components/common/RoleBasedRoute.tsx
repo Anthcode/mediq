@@ -67,11 +67,11 @@ export const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
       />;
     }
   }
-    console.log('RoleBasedRoute: Access granted', {
-    allowedRoles,
-    userRole: user?.role,
-    path: location.pathname
-  });
+  //   console.log('RoleBasedRoute: Access granted', {
+  //   allowedRoles,
+  //   userRole: user?.role,
+  //   path: location.pathname
+  // });
   
   return <>{children}</>;
 };

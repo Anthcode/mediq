@@ -48,9 +48,9 @@ export const ProfilePage: React.FC = () => {
 
     const userService = new UserService(supabase);
     try {
-      console.log('Próba pobrania profilu dla użytkownika:', user.id);
+      //console.log('Próba pobrania profilu dla użytkownika:', user.id);
       const data = await userService.getCurrentUserProfile();
-      console.log('Pobrano profil użytkownika:', data);
+      //console.log('Pobrano profil użytkownika:', data);
       setProfile(data);
     } catch (err) {
       console.error('Błąd podczas ładowania profilu:', err);
@@ -80,10 +80,10 @@ export const ProfilePage: React.FC = () => {
     if (user) {
       // Najpierw upewniamy się, że profil i rola użytkownika istnieją
       const userService = new UserService(supabase);
-      console.log('Rozpoczynam sprawdzanie i naprawę profilu użytkownika...');
+      //console.log('Rozpoczynam sprawdzanie i naprawę profilu użytkownika...');
       userService.ensureUserProfileExists(user.id)
         .then(() => {
-          console.log('Profil użytkownika został sprawdzony/naprawiony, ładowanie danych...');
+          //console.log('Profil użytkownika został sprawdzony/naprawiony, ładowanie danych...');
           loadProfile();
           loadSearchHistory();
         })
