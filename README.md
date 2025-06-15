@@ -16,7 +16,7 @@ MedIQ to innowacyjna platforma internetowa wykorzystująca sztuczną inteligencj
 
 Kluczowe funkcje obejmują:
 
-- Analiza objawów oparta na AI z wykorzystaniem modelu Google: Gemma 3 27 🤖
+- Analiza objawów oparta na AI z wykorzystaniem modelu Google: Gemma 3.27 🤖
 - Kompleksowe funkcje CRUD do zarządzania profilami lekarzy 🏥
 - Uwierzytelnianie użytkowników i zarządzanie profilami z wykorzystaniem Supabase 🔐
 - Responsywny design zorientowany na urządzenia mobilne zapewniający dostępność na wszystkich urządzeniach 📱
@@ -48,8 +48,6 @@ Kluczowe funkcje obejmują:
    ```sh
    cp .env .env.local
    ```
-   
-   Następnie edytuj `.env.local` i wstaw rzeczywiste klucze API. Zobacz [ENVIRONMENT_SETUP.md](ENVIRONMENT_SETUP.md) po więcej szczegółów.
 
 4. **Uruchomienie serwera deweloperskiego:**
 
