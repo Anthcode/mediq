@@ -34,27 +34,27 @@ describe('Button component', () => {
     expect(screen.getByText('Przycisk wyłączony')).toBeDisabled();
   });
   it('obsługuje różne warianty przycisków', () => {
-    const { rerender } = renderWithTheme(<Button variant="primary">Primary</Button>);
+    const { rerender } = renderWithTheme(<Button $variant="primary">Primary</Button>);
     expect(screen.getByText('Primary')).toHaveStyle(`background-color: ${theme.colors.primary.main}`);
     
-    rerender(<ThemeProvider theme={theme}><Button variant="secondary">Secondary</Button></ThemeProvider>);
+    rerender(<ThemeProvider theme={theme}><Button $variant="secondary">Secondary</Button></ThemeProvider>);
     expect(screen.getByText('Secondary')).toHaveStyle(`background-color: ${theme.colors.secondary.main}`);
     
-    rerender(<ThemeProvider theme={theme}><Button variant="outlined">Outlined</Button></ThemeProvider>);
+    rerender(<ThemeProvider theme={theme}><Button $variant="outlined">Outlined</Button></ThemeProvider>);
     expect(screen.getByText('Outlined')).toHaveStyle('background-color: rgba(0, 0, 0, 0)');
     
-    rerender(<ThemeProvider theme={theme}><Button variant="text">Text</Button></ThemeProvider>);
+    rerender(<ThemeProvider theme={theme}><Button $variant="text">Text</Button></ThemeProvider>);
     expect(screen.getByText('Text')).toHaveStyle('background-color: rgba(0, 0, 0, 0)');
   });
 
   it('obsługuje różne rozmiary przycisków', () => {
-    const { rerender } = renderWithTheme(<Button size="small">Small</Button>);
+    const { rerender } = renderWithTheme(<Button $size="small">Small</Button>);
     expect(screen.getByText('Small')).toHaveStyle('font-size: 0.875rem');
     
-    rerender(<ThemeProvider theme={theme}><Button size="medium">Medium</Button></ThemeProvider>);
+    rerender(<ThemeProvider theme={theme}><Button $size="medium">Medium</Button></ThemeProvider>);
     expect(screen.getByText('Medium')).toHaveStyle('font-size: 1rem');
     
-    rerender(<ThemeProvider theme={theme}><Button size="large">Large</Button></ThemeProvider>);
+    rerender(<ThemeProvider theme={theme}><Button $size="large">Large</Button></ThemeProvider>);
     expect(screen.getByText('Large')).toHaveStyle('font-size: 1.125rem');
   });
 
@@ -76,7 +76,7 @@ describe('Button component', () => {
   });
 
   it('obsługuje wartości cieni z motywu', () => {
-    renderWithTheme(<Button variant="primary" data-testid="shadow-button">Shadow Button</Button>);
+    renderWithTheme(<Button $variant="primary" data-testid="shadow-button">Shadow Button</Button>);
     const button = screen.getByTestId('shadow-button');
     
     expect(button).toHaveStyle(`box-shadow: ${theme.shadows.small}`);

@@ -26,7 +26,7 @@ Kluczowe funkcje obejmują:
 
 - **Frontend:** React 18+, TypeScript, Vite, React Router v6, Styled Components, Tailwind CSS, Lucide-react (ikony) oraz React hooks (useState, useEffect, itp.).
 - **Backend:** Supabase do uwierzytelniania, PostgreSQL jako baza danych, Supabase Storage do przechowywania mediów oraz integracja z OpenAI API do analizy zapytań zdrowotnych.
-- **DevOps i Testy:** GitHub Actions do CI/CD, Jest i React Testing Library do testów jednostkowych, Cypress do testów end-to-end, ESLint i Prettier do zapewnienia jakości kodu.
+- **DevOps i Testy:** GitHub Actions do CI/CD, Vitest i React Testing Library do testów jednostkowych, Cypress do testów end-to-end i komponentów, ESLint i Prettier do zapewnienia jakości kodu.
 
 ## Uruchomienie lokalne
 
@@ -60,12 +60,31 @@ Kluczowe funkcje obejmują:
 
 ## Dostępne skrypty
 
-- **`npm run dev`**: Uruchamia serwer deweloperski z hot module replacement.
+### Podstawowe komendy deweloperskie
+
+- **`npm run dev`**: Uruchamia serwer deweloperski Vite z hot module replacement.
 - **`npm run build`**: Buduje aplikację w wersji produkcyjnej.
 - **`npm run preview`**: Serwuje zbudowaną wersję produkcyjną lokalnie.
-- **`npm test`**: Uruchamia testy jednostkowe i integracyjne przy użyciu Jest i React Testing Library.
-- **`npm run e2e`**: Uruchamia testy end-to-end z Cypress.
 - **`npm run lint`**: Sprawdza problemy z jakością kodu przy użyciu ESLint.
+
+### Testy jednostkowe i integracyjne (Vitest)
+
+- **`npm test`**: Uruchamia wszystkie testy jednostkowe jednokrotnie.
+- **`npm run test:watch`**: Uruchamia testy w trybie obserwacji (watch mode).
+- **`npm run test:ui`**: Otwiera interfejs webowy Vitest do interaktywnego uruchamiania testów.
+- **`npm run test:coverage`**: Uruchamia testy z raportem pokrycia kodu.
+
+### Testy end-to-end i komponentów (Cypress)
+
+- **`npm run cypress`**: Otwiera Cypress Test Runner w trybie interaktywnym.
+- **`npm run cypress:run`**: Uruchamia testy e2e w trybie headless.
+- **`npm run cypress:component`**: Otwiera Cypress do testowania komponentów.
+- **`npm run cypress:run:component`**: Uruchamia testy komponentów w trybie headless.
+- **`npm run test:e2e`**: Uruchamia serwer deweloperski i wykonuje testy e2e automatycznie.
+
+### Kompleksowe testowanie
+
+- **`npm run test:all`**: Uruchamia wszystkie testy (jednostkowe + e2e) sekwencyjnie.
 
 ## Zakres projektu
 
@@ -78,6 +97,75 @@ Kluczowe funkcje obejmują:
 - Zautomatyzowane testy (jednostkowe, integracyjne i e2e) oraz pipeline CI/CD poprzez GitHub Actions.
 - Mechanizmy cache'owania do optymalizacji zapytań API.
 - Optymalizacja wydajności z wykorzystaniem technik takich jak lazy loading i React.memo.
+
+## Testy Jednostkowe i Integracyjne
+
+Projekt zawiera kompleksowy zestaw testów wykorzystujących **Vitest** i **React Testing Library**:
+
+### Testy Komponentów UI (`src/__tests__/components/`)
+
+**Button Component** - Pełny zestaw testów sprawdzających:
+
+- Renderowanie komponentu z różnymi propsami
+- Obsługę eventów (onClick, hover, disabled)
+- Warianty stylowania (primary, secondary, outlined, text, danger)
+- Różne rozmiary przycisków (small, medium, large)
+- Właściwości układu ($fullWidth)
+- Integrację z systemem motywów Styled Components
+- Responsywność i interakcje z użytkownikiem
+- Wykorzystanie ThemeProvider i dostęp do kolorów motywu
+- Testowanie CSS helpers i styled-components features
+- Kompatybilność z różnymi elementami HTML (as prop)
+
+### Testy Serwisów Backend (`src/__tests__/services/`)
+
+**DoctorService** - Testy integracji z Supabase:
+
+- Pobieranie listy lekarzy (`getDoctors()`)
+- Pobieranie pojedynczego lekarza po ID (`getDoctorById()`)
+- Obsługa błędów z bazy danych
+- Mockowanie wywołań Supabase
+- Walidacja struktury zapytań SQL
+- Testowanie relacji z tabelami powiązanymi (addresses, ratings)
+
+### Testy Integracji AI (`src/__tests__/lib/`)
+
+**OpenAI Integration** - Testy analizy symptomów:
+
+- Analiza zapytań zdrowotnych (`analyzeHealthQueryWithSpecialties()`)
+- Parsowanie odpowiedzi z OpenAI API
+- Obsługa błędów API (puste odpowiedzi, błędy sieci)
+- Mockowanie zewnętrznych serwisów
+- Walidacja struktury danych wyjściowych
+- Testowanie logiki dopasowywania specjalizacji
+
+### Konfiguracja Testów (`src/__tests__/setup.ts`)
+
+- Konfiguracja środowiska testowego Vitest
+- Globalne mocki (ResizeObserver, Supabase, zmienne środowiskowe)
+- Rozszerzenia matcherów testing-library
+- Automatyczne czyszczenie po testach
+- Definicja zmiennych środowiskowych dla testów
+
+### Testy Komponentów Cypress (`cypress/component/`)
+
+**Component Testing** - Testy komponentów w izolacji:
+
+- Interaktywne testy komponentu Button
+- Testowanie stanów hover i focus
+- Walidacja właściwości CSS w rzeczywistym środowisku przeglądarki
+- Symulacja zdarzeń użytkownika
+
+### Pokrycie Testowe
+
+Testy obejmują:
+
+- ✅ Komponenty UI i ich interakcje
+- ✅ Serwisy komunikacji z bazą danych
+- ✅ Integrację z zewnętrznymi API (OpenAI)
+- ✅ Obsługę błędów i edge cases
+- ✅ Mockowanie zależności zewnętrznych
+- ✅ Testowanie funkcjonalności styled-components
 
 ### Funkcje poza zakresem
 
