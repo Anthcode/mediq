@@ -6,7 +6,7 @@
   [![Deploy to Cloudflare Pages](https://github.com/anthcode/mediq/actions/workflows/deploy.yml/badge.svg)](https://github.com/anthcode/mediq/actions/workflows/deploy.yml)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   
-  **[Demo na żywo](https://56168c6e.mediq.pages.dev/)**
+  **[Demo na żywo](https://197025ea.mediq.pages.dev/)**
 </div>
 
 ## 📋 O projekcie
