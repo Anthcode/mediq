@@ -11,6 +11,7 @@ env:
   VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
   VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
   VITE_OPENROUTER_API_KEY: ${{ secrets.VITE_OPENROUTER_API_KEY }}
+  VITE_APP_URL: https://mediq.pages.dev
 
 jobs:
   # Job 1: Testy i quality checks
@@ -64,13 +65,13 @@ jobs:
         run: npm run test:e2e
         env:
           CYPRESS_baseUrl: http://localhost:5174
+
   # Job 3: Deploy do Cloudflare Pages
   deploy:
     name: 🚀 Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
     needs: [test]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-    environment: production
     
     permissions:
       contents: read
