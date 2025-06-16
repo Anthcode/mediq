@@ -92,13 +92,12 @@ jobs:
       - name: 🏗️ Build application
         run: npm run build
 
-      - name: 🚀 Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: mediq # Zmień na nazwę swojego projektu w Cloudflare
-          directory: dist
+          command: pages deploy dist --project-name=mediq
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
   # Job 4: Preview deployment dla PR-ów
@@ -129,11 +128,10 @@ jobs:
       - name: 🏗️ Build application
         run: npm run build
 
-      - name: 🔍 Deploy Preview to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: mediq # Zmień na nazwę swojego projektu w Cloudflare
-          directory: dist
+          command: pages deploy dist --project-name=mediq
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
