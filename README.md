@@ -50,11 +50,6 @@ MedIQ to nowoczesna platforma internetowa wykorzystująca sztuczną inteligencj�
 ![Panel zarządzania lekarzami](screenshots/admin-panel.png)
 *Kompleksowy system CRUD do zarządzania bazą lekarzy*
 
-### Formularz dodawania/edycji lekarza
-
-![Formularz lekarza](screenshots/doctor-form.png)
-*Intuicyjny formularz z walidacją danych*
-
 ## 🚀 Technologie
 
 ### Frontend
